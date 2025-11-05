@@ -16,6 +16,9 @@ void setupHUD(void);
 /* Display debug info (camera position, etc.) */
 void displayDebugInfo(void);
 
+/* Update FPS counter with current frame time */
+void updateFPS(double deltaTime);
+
 /* Main render function - clears buffers and renders entire scene */
 void render(void);
 

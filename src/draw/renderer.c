@@ -15,17 +15,21 @@
 
 #include "renderer.h"
 #include "camera.h"
+#include "drawScene.h"
 
 #ifndef RES
 #define RES 1
 #endif
 
+/* FPS tracking */
+static double fpsUpdateTime = 0.0;
+static int frameCount = 0;
+static double currentFPS = 0.0;
+static const double FPS_UPDATE_INTERVAL = 0.5; /* Update FPS display every 0.5 seconds */
+
 /* Window dimensions */
 static int winW = 1800, winH = 1200;
 static float aspect = 900.0f/600.0f;
-
-/* Forward declarations */
-void drawScene(void);
 
 /* Helper function for text rendering */
 #define LEN 8192
@@ -80,8 +84,28 @@ void setupHUD(void)
 void displayDebugInfo(void)
 {
     setupHUD();
+    
+    /* Display FPS at top-right corner */
+    glWindowPos2i(winW - 150, winH - 30);
+    Print("FPS: %.1f", currentFPS);
+    
+    /* Display other debug info at bottom */
+    glWindowPos2i(5, 5);
     Print("Target(%.1f, %.1f, %.1f)  Yaw %.2f Pitch %.2f Dist %.1f",
           tpsTargetX, tpsTargetY, tpsTargetZ, tpsYaw, tpsPitch, tpsDist);
+}
+
+void updateFPS(double deltaTime)
+{
+    frameCount++;
+    fpsUpdateTime += deltaTime;
+    
+    if (fpsUpdateTime >= FPS_UPDATE_INTERVAL)
+    {
+        currentFPS = frameCount / fpsUpdateTime;
+        frameCount = 0;
+        fpsUpdateTime = 0.0;
+    }
 }
 
 void render(void)

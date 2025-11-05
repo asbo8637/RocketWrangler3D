@@ -2,6 +2,9 @@
 #include <GL/glu.h>
 #include <math.h>
 
+#include "drawScene.h"
+#include "../../assets/Shapes/master.h"
+
 /* Lighting */
 static float lightPos[4] = { 30.f, 25.f, 10.f, 1.f };  /* positional */
 static float lightAmb[4] = { 0.1f, 0.1f, 0.1f, 1.f };
@@ -147,5 +150,27 @@ void drawScene(void)
     /* Draw the target marker */
     drawTargetMarker();
 
-    /* Ready for additional shapes and objects */
+    /* Draw a test box */
+    glPushMatrix();
+    float boxColor[4] = {0.6f, 0.3f, 0.8f, 1.0f};
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, boxColor);
+    glTranslatef(5.0f, 1.0f, 0.0f);
+    drawBox(2.0f, 2.0f, 2.0f);
+    glPopMatrix();
+
+    /* Draw a test cone */
+    glPushMatrix();
+    float coneColor[4] = {0.8f, 0.3f, 0.3f, 1.0f};
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, coneColor);
+    glTranslatef(-5.0f, 0.0f, 0.0f);
+    drawCone(1.5f, 3.0f, 32);  /* base radius, height, segments */
+    glPopMatrix();
+
+    /* Draw a test prism */
+    glPushMatrix();
+    float prismColor[4] = {0.3f, 0.8f, 0.8f, 1.0f};
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, prismColor);
+    glTranslatef(0.0f, 0.0f, 5.0f);
+    drawPrism(2.0f, 3.0f, 1.5f);  /* width, height, depth */
+    glPopMatrix();
 }

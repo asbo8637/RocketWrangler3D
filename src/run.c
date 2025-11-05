@@ -1,4 +1,6 @@
 #include <stdlib.h>
+#include <time.h>
+#include <unistd.h>
 
 #ifdef __APPLE__
 #include <GLUT/glut.h>
@@ -6,60 +8,78 @@
 #include <GL/glut.h>
 #endif
 
-#include <sys/time.h>
-#include "camera.h"
-#include "controls.h"
-#include "renderer.h"
-#include "engine.h"
+#include "draw/camera.h"
+#include "game/controls.h"
+#include "draw/renderer.h"
+#include "game/engine.h"
 
 /* Globals */
 static GLint win = 0;
-static struct timeval lastTime;    /* Time of last update */
-static const double targetFPS = 60.0;
+static struct timespec lastTime;
+static double accumulator = 0.0;       /* Time accumulator for frame limiting */
 static const double targetFrameTime = 1.0 / 60.0;  /* Target time per frame in seconds */
 
 /* Get current time in seconds (high precision) */
-static double getCurrentTime(void)
+static double timeDifference(struct timespec *start, struct timespec *end)
 {
-    struct timeval now;
-    gettimeofday(&now, NULL);
-    return now.tv_sec + now.tv_usec / 1000000.0;
+    return (end->tv_sec - start->tv_sec) + 
+           (end->tv_nsec - start->tv_nsec) * 1e-9;
 }
 
 static void display(void)
 {
-    /* Calculate delta time */
-    struct timeval now;
-    gettimeofday(&now, NULL);
+    struct timespec currentTime;
+    clock_gettime(CLOCK_MONOTONIC, &currentTime);
     
-    double currentTime = getCurrentTime();
-    double deltaTime = currentTime - 
-                      (lastTime.tv_sec + lastTime.tv_usec / 1000000.0);
+    double deltaTime = timeDifference(&lastTime, &currentTime);
     
     /* Cap delta time to avoid large time steps */
     if (deltaTime > 0.1) deltaTime = 0.1;
     
-    /* Update game state */
+    /* Process inputs and update game state */
+    processInputs(deltaTime);
     updateEngine(deltaTime);
+    
+    /* Update FPS counter */
+    updateFPS(deltaTime);
     
     /* Render frame */
     render();
     
     /* Store time for next frame */
-    lastTime = now;
+    lastTime = currentTime;
+    
+    /* Reset accumulator after frame is complete */
+    accumulator = 0.0;
 }
 
 static void idle(void)
 {
-    /* Simple frame limiting */
-    double currentTime = getCurrentTime();
-    double deltaTime = currentTime - 
-                      (lastTime.tv_sec + lastTime.tv_usec / 1000000.0);
+    struct timespec currentTime;
+    clock_gettime(CLOCK_MONOTONIC, &currentTime);
     
-    if (deltaTime >= targetFrameTime)
+    double frameTime = timeDifference(&lastTime, &currentTime);
+    
+    /* Accumulate time */
+    accumulator += frameTime;
+    
+    /* If we haven't reached our target frame time yet, sleep */
+    if (accumulator < targetFrameTime)
     {
-        glutPostRedisplay();
+        /* Calculate how long to sleep */
+        double timeToSleep = (targetFrameTime - accumulator) * 1000000; /* Convert to microseconds */
+        if (timeToSleep > 100) /* Only sleep if we have meaningful time to wait */
+        {
+            usleep((unsigned int)timeToSleep);
+        }
+        return;
     }
+    
+    /* Always process inputs to prevent input lag */
+    processInputs(frameTime);
+    
+    /* Trigger a new frame */
+    glutPostRedisplay();
 }
 
 int main(int argc, char **argv)
@@ -76,13 +96,16 @@ int main(int argc, char **argv)
     initEngine();
     
     /* Initialize timing */
-    gettimeofday(&lastTime, NULL);
+    clock_gettime(CLOCK_MONOTONIC, &lastTime);
+    accumulator = 0.0;
 
     /* Set up GLUT callbacks */
     glutDisplayFunc(display);
     glutReshapeFunc(handleReshape);
     glutKeyboardFunc(handleKeyboard);
+    glutKeyboardUpFunc(handleKeyboardUp);
     glutSpecialFunc(handleSpecialKeys);
+    glutSpecialUpFunc(handleSpecialKeysUp);
     glutIdleFunc(idle);
 
     glutMainLoop();

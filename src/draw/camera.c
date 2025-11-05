@@ -10,13 +10,13 @@ float tpsPitch = -0.35f;   /* radians; up/down (clamped) */
 float tpsDist  = 18.0f;   /* boom length (zoom) */
 
 /* Camera constants */
-static const float tpsTurnSpeed = 0.05f;
-static const float tpsZoomSpeed = 1.0f;
+static const float baseMoveSpeed = 10.0f;   /* Units per second */
+static const float baseTurnSpeed = 2.0f;    /* Radians per second */
+static const float baseZoomSpeed = 20.0f;   /* Units per second */
 static const float tpsMinDist = 5.0f;
 static const float tpsMaxDist = 80.0f;
 static const float tpsMinPitch = -1.2f;
 static const float tpsMaxPitch = 1.2f;
-static const float moveSpeed = 0.8f;
 
 /* Helper function for camera direction */
 static void tpsForward(float yaw, float pitch, float *fx, float *fy, float *fz)
@@ -45,59 +45,65 @@ void applyTPSView(void)
 }
 
 /* Camera movement functions */
-void moveForward(void) {
-    tpsTargetX += moveSpeed * cosf(tpsYaw);
-    tpsTargetZ -= moveSpeed * sinf(tpsYaw);
+void moveForward(float deltaTime) {
+    float speed = baseMoveSpeed * deltaTime;
+    tpsTargetX += speed * cosf(tpsYaw);
+    tpsTargetZ -= speed * sinf(tpsYaw);
 }
 
-void moveBackward(void) {
-    tpsTargetX -= moveSpeed * cosf(tpsYaw);
-    tpsTargetZ += moveSpeed * sinf(tpsYaw);
+void moveBackward(float deltaTime) {
+    float speed = baseMoveSpeed * deltaTime;
+    tpsTargetX -= speed * cosf(tpsYaw);
+    tpsTargetZ += speed * sinf(tpsYaw);
 }
 
-void moveLeft(void) {
-    tpsTargetX -= moveSpeed * sinf(tpsYaw);
-    tpsTargetZ -= moveSpeed * cosf(tpsYaw);
+void moveLeft(float deltaTime) {
+    float speed = baseMoveSpeed * deltaTime;
+    tpsTargetX -= speed * sinf(tpsYaw);
+    tpsTargetZ -= speed * cosf(tpsYaw);
 }
 
-void moveRight(void) {
-    tpsTargetX += moveSpeed * sinf(tpsYaw);
-    tpsTargetZ += moveSpeed * cosf(tpsYaw);
+void moveRight(float deltaTime) {
+    float speed = baseMoveSpeed * deltaTime;
+    tpsTargetX += speed * sinf(tpsYaw);
+    tpsTargetZ += speed * cosf(tpsYaw);
 }
 
-void moveUp(void) {
-    tpsTargetY += moveSpeed;
+void moveUp(float deltaTime) {
+    float speed = baseMoveSpeed * deltaTime;
+    tpsTargetY += speed;
 }
 
-void moveDown(void) {
-    tpsTargetY -= moveSpeed;
+void moveDown(float deltaTime) {
+    float speed = baseMoveSpeed * deltaTime;
+    tpsTargetY -= speed;
 }
 
 /* Camera rotation and zoom */
-void turnLeft(void) {
-    tpsYaw += tpsTurnSpeed;
+void turnLeft(float deltaTime) {
+    tpsYaw += baseTurnSpeed * deltaTime;
 }
 
-void turnRight(void) {
-    tpsYaw -= tpsTurnSpeed;
+void turnRight(float deltaTime) {
+    tpsYaw -= baseTurnSpeed * deltaTime;
 }
 
-void lookUp(void) {
-    tpsPitch += tpsTurnSpeed;
+void lookUp(float deltaTime) {
+    tpsPitch += baseTurnSpeed * deltaTime;
     if (tpsPitch > tpsMaxPitch) tpsPitch = tpsMaxPitch;
 }
 
-void lookDown(void) {
-    tpsPitch -= tpsTurnSpeed;
+void lookDown(float deltaTime) {
+    tpsPitch -= baseTurnSpeed * deltaTime;
     if (tpsPitch < tpsMinPitch) tpsPitch = tpsMinPitch;
 }
 
-void zoomIn(void) {
-    tpsDist -= tpsZoomSpeed;
+void zoomIn(float deltaTime) {
+    tpsDist -= baseZoomSpeed * deltaTime;
     if (tpsDist < tpsMinDist) tpsDist = tpsMinDist;
 }
 
-void zoomOut(void) {
-    tpsDist += tpsZoomSpeed;
+void zoomOut(float deltaTime) {
+    tpsDist += baseZoomSpeed * deltaTime;
     if (tpsDist > tpsMaxDist) tpsDist = tpsMaxDist;
 }
