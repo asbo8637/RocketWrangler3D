@@ -4,7 +4,9 @@
 
 #include "drawScene.h"
 #include "../../assets/Shapes/master.h"
-#include "../Models/joint.h"
+#include "../../assets/Models/basic_joint.h"
+#include "../../assets/Models/joint_class.h"
+
 
 /* Lighting */
 static float lightPos[4] = { 30.f, 25.f, 10.f, 1.f };  /* positional */
@@ -59,67 +61,13 @@ static void drawTargetMarker(void)
     float markerColor[4] = {1.0f, 0.2f, 0.2f, 1.0f};
     
     glPushMatrix();
-    glTranslatef(tpsTargetX, tpsTargetY, tpsTargetZ);
-    
-    /* Draw a colored cube at target position */
-    glDisable(GL_LIGHTING);
-    glColor3fv(markerColor);
-    
-    glBegin(GL_LINES);
-    /* X axis */
-    glVertex3f(-markerSize, 0, 0);
-    glVertex3f(markerSize, 0, 0);
-    /* Y axis */
-    glVertex3f(0, -markerSize, 0);
-    glVertex3f(0, markerSize, 0);
-    /* Z axis */
-    glVertex3f(0, 0, -markerSize);
-    glVertex3f(0, 0, markerSize);
-    glEnd();
+    glTranslatef(tpsTargetX, tpsTargetY, tpsTargetZ);    
     
     glEnable(GL_LIGHTING);
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, markerColor);
     
     /* Draw a small cube */
-    glScalef(0.5f, 0.5f, 0.5f);
-    glBegin(GL_QUADS);
-    /* Front */
-    glNormal3f(0, 0, 1);
-    glVertex3f(-1, -1, 1);
-    glVertex3f(1, -1, 1);
-    glVertex3f(1, 1, 1);
-    glVertex3f(-1, 1, 1);
-    /* Back */
-    glNormal3f(0, 0, -1);
-    glVertex3f(1, -1, -1);
-    glVertex3f(-1, -1, -1);
-    glVertex3f(-1, 1, -1);
-    glVertex3f(1, 1, -1);
-    /* Right */
-    glNormal3f(1, 0, 0);
-    glVertex3f(1, -1, 1);
-    glVertex3f(1, -1, -1);
-    glVertex3f(1, 1, -1);
-    glVertex3f(1, 1, 1);
-    /* Left */
-    glNormal3f(-1, 0, 0);
-    glVertex3f(-1, -1, -1);
-    glVertex3f(-1, -1, 1);
-    glVertex3f(-1, 1, 1);
-    glVertex3f(-1, 1, -1);
-    /* Top */
-    glNormal3f(0, 1, 0);
-    glVertex3f(-1, 1, 1);
-    glVertex3f(1, 1, 1);
-    glVertex3f(1, 1, -1);
-    glVertex3f(-1, 1, -1);
-    /* Bottom */
-    glNormal3f(0, -1, 0);
-    glVertex3f(-1, -1, -1);
-    glVertex3f(1, -1, -1);
-    glVertex3f(1, -1, 1);
-    glVertex3f(-1, -1, 1);
-    glEnd();
+    drawBox(0.2f, 0.2f, 0.2f);
     
     glPopMatrix();
 }
@@ -151,29 +99,38 @@ void drawScene(void)
     /* Draw the target marker */
     drawTargetMarker();
 
-    /* Draw a test box */
-    glPushMatrix();
-    float boxColor[4] = {0.6f, 0.3f, 0.8f, 1.0f};
-    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, boxColor);
-    glTranslatef(5.0f, 1.0f, 0.0f);
-    drawBox(2.0f, 2.0f, 2.0f);
-    glPopMatrix();
+        // Create two independent arms and attach arm2 to the end of arm's first segment
+        static int armsInitialized = 0;
+        static BasicJointArm* arm = NULL;   // segment one
+        static BasicJointArm* arm2 = NULL;  // segment two (child arm)
+        if (!armsInitialized) {
+            // arm: one segment
+            arm = bj_create(0.4f, 0.5f, 2.0f);
+            bj_add_segment(arm);
+            // place arm base in world space
+            arm->head->joint->x = 0.0f;
+            arm->head->joint->y = 2.0f;
+            arm->head->joint->z = -5.0f;
 
-    /* Draw a test cone */
-    glPushMatrix();
-    float coneColor[4] = {0.8f, 0.3f, 0.3f, 1.0f};
-    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, coneColor);
-    glTranslatef(-5.0f, 0.0f, 0.0f);
-    drawCone(1.5f, 3.0f, 32);  /* base radius, height, segments */
-    glPopMatrix();
+            // arm2: one segment, will be attached to arm's end
+            arm2 = bj_create(0.35f, 0.45f, 1.8f);
+            bj_add_segment(arm2);
 
-    /* Draw a test prism */
-    glPushMatrix();
-    float prismColor[4] = {0.3f, 0.8f, 0.8f, 1.0f};
-    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, prismColor);
-    glTranslatef(0.0f, 0.0f, 5.0f);
-    drawPrism(2.0f, 3.0f, 1.5f);  /* width, height, depth */
-    glPopMatrix();
+            // Attach arm2's root joint as a child of arm's joint[1] (end of first segment)
+            Joint* parentJ = bj_get_joint(arm, 1);   // end of segment one
+            Joint* childRoot = bj_get_joint(arm2, 0); // root of arm2
+            if (parentJ && childRoot) {
+                joint_addChild(parentJ, childRoot);
+            }
 
-    drawAnimatedRobot(); 
+            armsInitialized = 1;
+        }
+
+        // Per-frame updates
+        bj_update(arm, 0.016f);   // spin base of arm slowly
+        bj_update(arm2, 0.016f);  // spin base of arm2 (relative to parent)
+
+        // Draw both arms; arm2 will render relative to parentJ
+        bj_draw(arm);
+        bj_draw(arm2);
 }

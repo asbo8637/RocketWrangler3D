@@ -1,4 +1,4 @@
-#include "joint.h"
+#include "joint_class.h"
 #include "../Shapes/master.h"
 #include <GL/glut.h>
 #include <math.h>
@@ -32,9 +32,7 @@ void initAnimatedRobot(void) {
 void updateAnimatedRobot(float deltaTime) {
     animTime += deltaTime;
     
-    robotBase->rotY = animTime * 20.0f;
-    
-    robotArm->rotZ = sin(animTime * 2.0f) * 45.0f;
+    robotBase->rotZ = animTime * 20.0f;
     
     robotHand->rotX = sin(animTime * 5.0f) * 20.0f;
 }
@@ -48,7 +46,7 @@ void drawAnimatedRobot(float deltaTime) {
     /* Draw base (sphere) */
     glPushMatrix();
         joint_applyTransform(robotBase);
-        drawSphere(0.8f);
+        drawSphere(0.8f, 16, 16);
     glPopMatrix();
     
     /* Draw arm (box) */
@@ -60,6 +58,6 @@ void drawAnimatedRobot(float deltaTime) {
     /* Draw hand (smaller sphere) */
     glPushMatrix();
         joint_applyTransform(robotHand);
-        drawSphere(0.4f);
+        drawSphere(0.4f, 16, 16);
     glPopMatrix();
 }

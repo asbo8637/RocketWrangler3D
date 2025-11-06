@@ -1,6 +1,12 @@
 #include <stdlib.h>
+
+// Platform-specific timing headers
+#ifdef _WIN32
+#include <windows.h>
+#else
 #include <time.h>
 #include <unistd.h>
+#endif
 
 #ifdef __APPLE__
 #include <GLUT/glut.h>
@@ -13,25 +19,46 @@
 #include "draw/renderer.h"
 #include "game/engine.h"
 
-/* Globals */
+// Globals
 static GLint win = 0;
-static struct timespec lastTime;
-static double accumulator = 0.0;       / Time accumulator for frame limiting */
-static const double targetFrameTime = 1.0 / 60.0;  // Target time per frame in seconds */
+static double lastTimeSec = 0.0;       // Last frame timestamp (seconds)
+static double accumulator = 0.0;       // Time accumulator for frame limiting 
+static const double targetFrameTime = 1.0 / 60.0;  // Target time per frame in seconds 
 
-/* Get current time in seconds (high precision) */
-static double timeDifference(struct timespec *start, struct timespec *end)
+// High-resolution clock in seconds
+static double now_seconds(void)
 {
-    return (end->tv_sec - start->tv_sec) + 
-           (end->tv_nsec - start->tv_nsec) * 1e-9;
+#ifdef _WIN32
+    static LARGE_INTEGER freq = {0};
+    LARGE_INTEGER counter;
+    if (freq.QuadPart == 0) {
+        QueryPerformanceFrequency(&freq);
+    }
+    QueryPerformanceCounter(&counter);
+    return (double)counter.QuadPart / (double)freq.QuadPart;
+#else
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return (double)ts.tv_sec + (double)ts.tv_nsec * 1e-9;
+#endif
+}
+
+// Sleep helper (microseconds)
+static void sleep_us(unsigned int micros)
+{
+#ifdef _WIN32
+    // Sleep() takes milliseconds; round up to avoid 0ms busy waits
+    DWORD ms = (DWORD)((micros + 999) / 1000);
+    if (ms > 0) Sleep(ms);
+#else
+    usleep(micros);
+#endif
 }
 
 static void display(void)
 {
-    struct timespec currentTime;
-    clock_gettime(CLOCK_MONOTONIC, &currentTime);
-    
-    double deltaTime = timeDifference(&lastTime, &currentTime);
+    double currentTime = now_seconds();
+    double deltaTime = currentTime - lastTimeSec;
     
     /* Cap delta time to avoid large time steps */
     if (deltaTime > 0.1) deltaTime = 0.1;
@@ -47,7 +74,7 @@ static void display(void)
     render();
     
     /* Store time for next frame */
-    lastTime = currentTime;
+    lastTimeSec = currentTime;
     
     /* Reset accumulator after frame is complete */
     accumulator = 0.0;
@@ -55,10 +82,8 @@ static void display(void)
 
 static void idle(void)
 {
-    struct timespec currentTime;
-    clock_gettime(CLOCK_MONOTONIC, &currentTime);
-    
-    double frameTime = timeDifference(&lastTime, &currentTime);
+    double currentTime = now_seconds();
+    double frameTime = currentTime - lastTimeSec;
     
     /* Accumulate time */
     accumulator += frameTime;
@@ -70,7 +95,7 @@ static void idle(void)
         double timeToSleep = (targetFrameTime - accumulator) * 1000000; /* Convert to microseconds */
         if (timeToSleep > 100) /* Only sleep if we have meaningful time to wait */
         {
-            usleep((unsigned int)timeToSleep);
+            sleep_us((unsigned int)timeToSleep);
         }
         return;
     }
@@ -96,7 +121,7 @@ int main(int argc, char **argv)
     initEngine();
     
     /* Initialize timing */
-    clock_gettime(CLOCK_MONOTONIC, &lastTime);
+    lastTimeSec = now_seconds();
     accumulator = 0.0;
 
     /* Set up GLUT callbacks */

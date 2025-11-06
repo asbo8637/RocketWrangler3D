@@ -1,4 +1,4 @@
-#include "joint.h"
+#include "joint_class.h"
 #include <GL/glut.h>
 #include <stdlib.h>
 

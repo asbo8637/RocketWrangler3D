@@ -5,26 +5,33 @@ LIBS=-L"C:/msys64/mingw64/lib" -lfreeglut -lglew32 -lglu32 -lopengl32 -lwinmm -l
 LDFLAGS=-static-libgcc -static-libstdc++
 CLEAN=del /F /Q *.exe *.o *.a src\*.o RocketWrangler3D.exe 2>NUL
 
+# Where to place all object files
+OBJDIR=tmp/obj
+
 #  Source files and objects
 SRCS = src/run.c \
-       $(wildcard src/draw/*.c) \
-       $(wildcard src/game/*.c) \
-       $(wildcard assets/Shapes/*.c) \
-       $(wildcard assets/Models/*.c)
-OBJS = $(SRCS:.c=.o)
+	$(wildcard src/draw/*.c) \
+	$(wildcard src/game/*.c) \
+	$(wildcard assets/Shapes/*.c) \
+	$(wildcard assets/Models/*.c)
+# Put objects under $(OBJDIR), mirroring source subfolders
+OBJS = $(patsubst %.c,$(OBJDIR)/%.o,$(SRCS))
 
 #  Compile and link
 RocketWrangler3D: $(OBJS)
 	$(CC) $(CFLG) -o $@ $(OBJS) $(LIBS) $(LDFLAGS)
 
-#  Generic rule for compiling objects
-%.o: %.c
+#  Generic rule for compiling objects into $(OBJDIR)
+#  Create the output directory on Windows cmd-compatible way
+$(OBJDIR)/%.o: %.c
+	@if not exist "$(dir $@)" mkdir "$(dir $@)"
 	$(CC) $(CFLG) -c $< -o $@
 
 #  Clean
 clean:
 	-del /F /Q *.exe *.o *.a 2>NUL
 	-del /F /Q src\*.o src\draw\*.o src\game\*.o assets\Shapes\*.o assets\Models\*.o 2>NUL
+	-@if exist "$(OBJDIR)" rmdir /S /Q "$(OBJDIR)" 2>NUL
 	-del /F /Q RocketWrangler3D.exe 2>NUL
 
 #  Distribution

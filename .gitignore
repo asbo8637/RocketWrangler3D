@@ -53,3 +53,10 @@ dkms.conf
 
 # debug information files
 *.dwo
+
+# Build artifacts
+tmp/
+dist/
+
+# Avoid Windows reserved device names (breaks Git on Windows)
+NUL
