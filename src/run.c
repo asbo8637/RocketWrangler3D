@@ -16,8 +16,8 @@
 /* Globals */
 static GLint win = 0;
 static struct timespec lastTime;
-static double accumulator = 0.0;       /* Time accumulator for frame limiting */
-static const double targetFrameTime = 1.0 / 60.0;  /* Target time per frame in seconds */
+static double accumulator = 0.0;       / Time accumulator for frame limiting */
+static const double targetFrameTime = 1.0 / 60.0;  // Target time per frame in seconds */
 
 /* Get current time in seconds (high precision) */
 static double timeDifference(struct timespec *start, struct timespec *end)

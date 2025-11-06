@@ -4,6 +4,7 @@
 
 #include "drawScene.h"
 #include "../../assets/Shapes/master.h"
+#include "../Models/joint.h"
 
 /* Lighting */
 static float lightPos[4] = { 30.f, 25.f, 10.f, 1.f };  /* positional */
@@ -173,4 +174,6 @@ void drawScene(void)
     glTranslatef(0.0f, 0.0f, 5.0f);
     drawPrism(2.0f, 3.0f, 1.5f);  /* width, height, depth */
     glPopMatrix();
+
+    drawAnimatedRobot(); 
 }

@@ -9,7 +9,8 @@ CLEAN=del /F /Q *.exe *.o *.a src\*.o RocketWrangler3D.exe 2>NUL
 SRCS = src/run.c \
        $(wildcard src/draw/*.c) \
        $(wildcard src/game/*.c) \
-       $(wildcard assets/Shapes/*.c)
+       $(wildcard assets/Shapes/*.c) \
+       $(wildcard assets/Models/*.c)
 OBJS = $(SRCS:.c=.o)
 
 #  Compile and link
@@ -23,7 +24,7 @@ RocketWrangler3D: $(OBJS)
 #  Clean
 clean:
 	-del /F /Q *.exe *.o *.a 2>NUL
-	-del /F /Q src\*.o src\draw\*.o src\game\*.o assets\Shapes\*.o 2>NUL
+	-del /F /Q src\*.o src\draw\*.o src\game\*.o assets\Shapes\*.o assets\Models\*.o 2>NUL
 	-del /F /Q RocketWrangler3D.exe 2>NUL
 
 #  Distribution
