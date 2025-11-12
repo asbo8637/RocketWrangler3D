@@ -108,13 +108,13 @@ void updateFPS(double deltaTime)
     }
 }
 
-void render(void)
+void render(double deltaTime)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     setProjection();
     applyTPSView();
-    drawScene();
+    drawScene(deltaTime);
     
     displayDebugInfo();
     

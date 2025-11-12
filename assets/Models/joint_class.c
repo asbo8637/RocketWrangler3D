@@ -10,6 +10,11 @@ Joint* joint_create(void) {
     joint->x = joint->y = joint->z = 0.0f;
     joint->rotX = joint->rotY = joint->rotZ = 0.0f;
     
+    // Initialize animation state
+    joint->targetRotX = joint->targetRotY = joint->targetRotZ = 0.0f;
+    joint->angleSpeed = 45.0f;
+    joint->animatingRot = 1;
+    
     //No parent
     joint->parent = NULL;
     return joint;
@@ -30,7 +35,6 @@ void joint_addChild(Joint* parent, Joint* child) {
 // Move a joint
 void joint_move(Joint* joint, float dx, float dy, float dz) {
     if (!joint) return;
-    
     joint->x += dx;
     joint->y += dy;
     joint->z += dz;
@@ -61,4 +65,34 @@ void joint_applyTransform(Joint* joint) {
     glRotatef(joint->rotX, 1, 0, 0);  // Rotate around X axis
     glRotatef(joint->rotY, 0, 1, 0);  // Rotate around Y axis
     glRotatef(joint->rotZ, 0, 0, 1);  // Rotate around Z axis
+}
+
+// Helper: linearly interpolate towards target
+static float lerp_towards(float current, float target, float maxDelta) {
+    float diff = target - current;
+    if (diff > maxDelta) return current + maxDelta;
+    if (diff < -maxDelta) return current - maxDelta;
+    return target; // reached target
+}
+
+// Animate joint rotation to target over time
+void joint_animateToAngle(Joint* joint, float targetRotX, float targetRotY, float targetRotZ, float speed) {
+    if (!joint) return;
+    joint->targetRotX = targetRotX;
+    joint->targetRotY = targetRotY;
+    joint->targetRotZ = targetRotZ;
+    joint->angleSpeed = speed;
+}
+
+// Update joint animations (call every frame)
+void joint_updateAnimation(Joint* joint, float deltaTime) {
+    if (!joint) return;
+    
+    // Update rotation animation
+    if (joint->animatingRot) {
+        float maxDelta = joint->angleSpeed * deltaTime;
+        joint->rotX = lerp_towards(joint->rotX, joint->targetRotX, maxDelta);
+        joint->rotY = lerp_towards(joint->rotY, joint->targetRotY, maxDelta);
+        joint->rotZ = lerp_towards(joint->rotZ, joint->targetRotZ, maxDelta);
+    }
 }

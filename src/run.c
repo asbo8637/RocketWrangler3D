@@ -1,12 +1,8 @@
 #include <stdlib.h>
 
-// Platform-specific timing headers
-#ifdef _WIN32
-#include <windows.h>
-#else
+// POSIX timing headers for Linux/WSL
 #include <time.h>
 #include <unistd.h>
-#endif
 
 #ifdef __APPLE__
 #include <GLUT/glut.h>
@@ -15,67 +11,53 @@
 #endif
 
 #include "draw/camera.h"
+#include "draw/init.h"
 #include "game/controls.h"
 #include "draw/renderer.h"
 #include "game/engine.h"
 
 // Globals
 static GLint win = 0;
-static double lastTimeSec = 0.0;       // Last frame timestamp (seconds)
-static double accumulator = 0.0;       // Time accumulator for frame limiting 
-static const double targetFrameTime = 1.0 / 60.0;  // Target time per frame in seconds 
+static double lastTimeSec = 0.0;                  // Last frame timestamp (seconds)
+static double accumulator = 0.0;                  // Time accumulator for frame limiting
+static const double targetFrameTime = 1.0 / 60.0; // Target time per frame in seconds
 
-// High-resolution clock in seconds
+// High-resolution clock in seconds (POSIX)
 static double now_seconds(void)
 {
-#ifdef _WIN32
-    static LARGE_INTEGER freq = {0};
-    LARGE_INTEGER counter;
-    if (freq.QuadPart == 0) {
-        QueryPerformanceFrequency(&freq);
-    }
-    QueryPerformanceCounter(&counter);
-    return (double)counter.QuadPart / (double)freq.QuadPart;
-#else
     struct timespec ts;
     clock_gettime(CLOCK_MONOTONIC, &ts);
     return (double)ts.tv_sec + (double)ts.tv_nsec * 1e-9;
-#endif
 }
 
-// Sleep helper (microseconds)
+// Sleep helper (microseconds, POSIX)
 static void sleep_us(unsigned int micros)
 {
-#ifdef _WIN32
-    // Sleep() takes milliseconds; round up to avoid 0ms busy waits
-    DWORD ms = (DWORD)((micros + 999) / 1000);
-    if (ms > 0) Sleep(ms);
-#else
     usleep(micros);
-#endif
 }
 
 static void display(void)
 {
     double currentTime = now_seconds();
     double deltaTime = currentTime - lastTimeSec;
-    
+
     /* Cap delta time to avoid large time steps */
-    if (deltaTime > 0.1) deltaTime = 0.1;
-    
+    if (deltaTime > 0.1)
+        deltaTime = 0.1;
+
     /* Process inputs and update game state */
     processInputs(deltaTime);
     updateEngine(deltaTime);
-    
+
     /* Update FPS counter */
     updateFPS(deltaTime);
-    
+
     /* Render frame */
-    render();
-    
+    render(deltaTime);
+
     /* Store time for next frame */
     lastTimeSec = currentTime;
-    
+
     /* Reset accumulator after frame is complete */
     accumulator = 0.0;
 }
@@ -84,25 +66,25 @@ static void idle(void)
 {
     double currentTime = now_seconds();
     double frameTime = currentTime - lastTimeSec;
-    
+
     /* Accumulate time */
     accumulator += frameTime;
-    
+
     /* If we haven't reached our target frame time yet, sleep */
     if (accumulator < targetFrameTime)
     {
         /* Calculate how long to sleep */
         double timeToSleep = (targetFrameTime - accumulator) * 1000000; /* Convert to microseconds */
-        if (timeToSleep > 100) /* Only sleep if we have meaningful time to wait */
+        if (timeToSleep > 100)                                          /* Only sleep if we have meaningful time to wait */
         {
             sleep_us((unsigned int)timeToSleep);
         }
         return;
     }
-    
+
     /* Always process inputs to prevent input lag */
     processInputs(frameTime);
-    
+
     /* Trigger a new frame */
     glutPostRedisplay();
 }
@@ -119,7 +101,8 @@ int main(int argc, char **argv)
     initRenderer();
     initControls(win);
     initEngine();
-    
+    initScene();  // Initialize scene objects (robot, etc.)
+
     /* Initialize timing */
     lastTimeSec = now_seconds();
     accumulator = 0.0;

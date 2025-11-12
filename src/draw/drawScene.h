@@ -5,6 +5,6 @@
 void setupLighting(void);
 
 /* Main scene drawing function */
-void drawScene(void);
+void drawScene(double deltaTime);
 
 #endif /* DRAWSCENE_H */
