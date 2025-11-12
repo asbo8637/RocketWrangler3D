@@ -6,7 +6,9 @@
 // Robot "class" structure
 typedef struct Robot
 {
-    Joint *torso;
+    Joint *core;       // Root joint for overall orientation
+    Joint *lowerTorso; // Lower back/hips
+    Joint *upperTorso; // Upper chest
     Joint *head;
     Joint *RUpperArm;
     Joint *RForearm;
@@ -16,10 +18,12 @@ typedef struct Robot
     Joint *RCalf;
     Joint *LThigh;
     Joint *LCalf;
-    
+
     // Animation state for in-air animation
     float poseTimer;
     float spinTime;
+    float lastCrunchAngle;
+    float lastRollAngle;
 } Robot;
 
 // Create a new robot instance
@@ -38,7 +42,8 @@ void robot_draw(const Robot *robot);
 // Pass angles in degrees for each joint (rotX, rotY, rotZ)
 // All joints animate at 90 degrees/second
 void robot_setStance(Robot *robot,
-                     float torsoX, float torsoY, float torsoZ,
+                     float lowerTorsoX, float lowerTorsoY, float lowerTorsoZ,
+                     float upperTorsoX, float upperTorsoY, float upperTorsoZ,
                      float headX, float headY, float headZ,
                      float rUpperArmX, float rUpperArmY, float rUpperArmZ,
                      float rForearmX, float rForearmY, float rForearmZ,
@@ -53,7 +58,7 @@ void robot_setStance(Robot *robot,
 // In-air animation: random poses with continuous spinning
 // spinSpeed: degrees per second for torso rotation
 // poseDuration: seconds between random pose changes
-void robot_inAirAnimation(Robot *robot, float deltaTime, float spinSpeed, float poseDuration);
+void robot_inAirAnimation(Robot *robot, float deltaTime, float spinSpeed, float poseDuration, float crunchAngle, float rollAngle);
 
 // Destroy robot and free resources
 void robot_destroy(Robot *robot);

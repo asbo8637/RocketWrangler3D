@@ -13,6 +13,7 @@ Joint* joint_create(void) {
     // Initialize animation state
     joint->targetRotX = joint->targetRotY = joint->targetRotZ = 0.0f;
     joint->angleSpeed = 45.0f;
+    joint->angleSpeedCof = 1.0f;
     joint->animatingRot = 1;
     
     //No parent
@@ -90,7 +91,7 @@ void joint_updateAnimation(Joint* joint, float deltaTime) {
     
     // Update rotation animation
     if (joint->animatingRot) {
-        float maxDelta = joint->angleSpeed * deltaTime;
+        float maxDelta = joint->angleSpeed * deltaTime * joint->angleSpeedCof;
         joint->rotX = lerp_towards(joint->rotX, joint->targetRotX, maxDelta);
         joint->rotY = lerp_towards(joint->rotY, joint->targetRotY, maxDelta);
         joint->rotZ = lerp_towards(joint->rotZ, joint->targetRotZ, maxDelta);

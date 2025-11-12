@@ -38,16 +38,14 @@ static void sleep_us(unsigned int micros)
 
 static void display(void)
 {
+    /* This is called when glutPostRedisplay() is triggered from idle() */
+    /* Just render - all updates happen in idle() */
     double currentTime = now_seconds();
     double deltaTime = currentTime - lastTimeSec;
 
     /* Cap delta time to avoid large time steps */
     if (deltaTime > 0.1)
         deltaTime = 0.1;
-
-    /* Process inputs and update game state */
-    processInputs(deltaTime);
-    updateEngine(deltaTime);
 
     /* Update FPS counter */
     updateFPS(deltaTime);
@@ -57,9 +55,6 @@ static void display(void)
 
     /* Store time for next frame */
     lastTimeSec = currentTime;
-
-    /* Reset accumulator after frame is complete */
-    accumulator = 0.0;
 }
 
 static void idle(void)
@@ -82,8 +77,9 @@ static void idle(void)
         return;
     }
 
-    /* Always process inputs to prevent input lag */
+    /* Process inputs and update game state */
     processInputs(frameTime);
+    updateEngine(frameTime);
 
     /* Trigger a new frame */
     glutPostRedisplay();
@@ -101,7 +97,7 @@ int main(int argc, char **argv)
     initRenderer();
     initControls(win);
     initEngine();
-    initScene();  // Initialize scene objects (robot, etc.)
+    initScene(); // Initialize scene objects (robot, etc.)
 
     /* Initialize timing */
     lastTimeSec = now_seconds();

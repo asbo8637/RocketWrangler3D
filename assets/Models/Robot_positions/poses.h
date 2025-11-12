@@ -7,6 +7,8 @@
 void robot_tpose(Robot *robot);
 
 // Random pose stance - various angles for dynamic look
-void robot_randompose(Robot *robot);
+// crunchFactor: positive values bend forward (tucked position)
+// rollAngle: roll bias applied across joints
+void robot_randompose(Robot *robot, float crunchFactor, float rollAngle);
 
 #endif // ROBOT_POSES_H

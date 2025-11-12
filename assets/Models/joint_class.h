@@ -13,6 +13,7 @@ typedef struct Joint
     // Animation targets and state
     float targetRotX, targetRotY, targetRotZ;
     float angleSpeed; // degrees per second
+    float angleSpeedCof; // speed coefficient multiplier
     int animatingRot; // 1 if animating rotation, 0 if not
 
     // Parent-child relationships

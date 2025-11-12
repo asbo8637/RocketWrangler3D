@@ -1,6 +1,19 @@
 #ifndef CONTROLS_H
 #define CONTROLS_H
 
+/* Control state that can be read by engine */
+typedef struct {
+    float moveX;        // -1 to 1 (left/right)
+    float moveY;        // -1 to 1 (down/up)
+    float moveZ;        // -1 to 1 (back/forward)
+    float cameraYaw;    // -1 to 1 (left/right rotation)
+    float cameraPitch;  // -1 to 1 (down/up rotation)
+    float cameraZoom;   // -1 to 1 (out/in)
+} ControlState;
+
+/* Global control state accessible to engine */
+extern ControlState controlState;
+
 /* Input handling initialization */
 void initControls(int windowId);
 

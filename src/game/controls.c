@@ -13,68 +13,124 @@ static unsigned char specialKeys[MAX_SPECIAL_KEYS] = {0};
 
 /* Other global state */
 static int windowId = 0;
-static int lightRotating = 0;   /* toggled by 'P' */
+
+/* Global control state accessible to engine */
+ControlState controlState = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
 
 void handleKeyboard(unsigned char key, int x, int y)
 {
-    (void)x; (void)y;
+    (void)x;
+    (void)y;
     normalKeys[key] = 1;
-    
-    /* Handle immediate actions */
-    switch (key)
-    {
-    case 27: /* ESC */
-        glutDestroyWindow(windowId);
-        exit(0);
-        break;
-
-    case 'p': case 'P':
-        lightRotating = !lightRotating;
-        break;
-    }
 }
 
 void handleKeyboardUp(unsigned char key, int x, int y)
 {
-    (void)x; (void)y;
+    (void)x;
+    (void)y;
     normalKeys[key] = 0;
 }
 
 void handleSpecialKeys(int key, int x, int y)
 {
-    (void)x; (void)y;
+    (void)x;
+    (void)y;
     if (key < MAX_SPECIAL_KEYS)
         specialKeys[key] = 1;
 }
 
 void handleSpecialKeysUp(int key, int x, int y)
 {
-    (void)x; (void)y;
+    (void)x;
+    (void)y;
     if (key < MAX_SPECIAL_KEYS)
         specialKeys[key] = 0;
 }
 
 void processInputs(double deltaTime)
 {
-    /* Process all currently pressed keys */
-    if ((normalKeys['w'] || normalKeys['W']) && !(normalKeys['s'] || normalKeys['S'])) moveForward(deltaTime);
-    else if ((normalKeys['s'] || normalKeys['S']) && !(normalKeys['w'] || normalKeys['W'])) moveBackward(deltaTime);
+    /* Reset control state */
+    controlState.moveX = 0.0f;
+    controlState.moveY = 0.0f;
+    controlState.moveZ = 0.0f;
+    controlState.cameraYaw = 0.0f;
+    controlState.cameraPitch = 0.0f;
+    controlState.cameraZoom = 0.0f;
 
-    if ((normalKeys['a'] || normalKeys['A']) && !(normalKeys['d'] || normalKeys['D'])) moveLeft(deltaTime);
-    else if ((normalKeys['d'] || normalKeys['D']) && !(normalKeys['a'] || normalKeys['A']) ) moveRight(deltaTime);
+    /* Process movement keys and update control state */
+    if ((normalKeys['w'] || normalKeys['W']) && !(normalKeys['s'] || normalKeys['S']))
+    {
+        moveForward(deltaTime);
+        controlState.moveZ = 1.0f;
+    }
+    else if ((normalKeys['s'] || normalKeys['S']) && !(normalKeys['w'] || normalKeys['W']))
+    {
+        moveBackward(deltaTime);
+        controlState.moveZ = -1.0f;
+    }
 
-    if ((normalKeys['q'] || normalKeys['Q']) && !(normalKeys['e'] || normalKeys['E'])) moveUp(deltaTime);
-    else if ((normalKeys['e'] || normalKeys['E']) && !(normalKeys['q'] || normalKeys['Q'])) moveDown(deltaTime);
-    
+    if ((normalKeys['a'] || normalKeys['A']) && !(normalKeys['d'] || normalKeys['D']))
+    {
+        moveLeft(deltaTime);
+        controlState.moveX = -1.0f;
+    }
+    else if ((normalKeys['d'] || normalKeys['D']) && !(normalKeys['a'] || normalKeys['A']))
+    {
+        moveRight(deltaTime);
+        controlState.moveX = 1.0f;
+    }
+
+    if ((normalKeys['q'] || normalKeys['Q']) && !(normalKeys['e'] || normalKeys['E']))
+    {
+        moveUp(deltaTime);
+        controlState.moveY = 1.0f;
+    }
+    else if ((normalKeys['e'] || normalKeys['E']) && !(normalKeys['q'] || normalKeys['Q']))
+    {
+        moveDown(deltaTime);
+        controlState.moveY = -1.0f;
+    }
+
     /* Zoom */
-    if (normalKeys['+'] || normalKeys['=']) zoomIn(deltaTime);
-    else if (normalKeys['-'] || normalKeys['_']) zoomOut(deltaTime);
-    
+    if (normalKeys['+'] || normalKeys['='])
+    {
+        zoomIn(deltaTime);
+        controlState.cameraZoom = 1.0f;
+    }
+    else if (normalKeys['-'] || normalKeys['_'])
+    {
+        zoomOut(deltaTime);
+        controlState.cameraZoom = -1.0f;
+    }
+
     /* Camera rotation */
-    if (specialKeys[GLUT_KEY_LEFT])  turnLeft(deltaTime);
-    if (specialKeys[GLUT_KEY_RIGHT]) turnRight(deltaTime);
-    if (specialKeys[GLUT_KEY_UP])    lookUp(deltaTime);
-    if (specialKeys[GLUT_KEY_DOWN])  lookDown(deltaTime);
+    if (specialKeys[GLUT_KEY_LEFT])
+    {
+        turnLeft(deltaTime);
+        controlState.cameraYaw = -1.0f;
+    }
+    if (specialKeys[GLUT_KEY_RIGHT])
+    {
+        turnRight(deltaTime);
+        controlState.cameraYaw = 1.0f;
+    }
+    if (specialKeys[GLUT_KEY_UP])
+    {
+        lookUp(deltaTime);
+        controlState.cameraPitch = 1.0f;
+    }
+    if (specialKeys[GLUT_KEY_DOWN])
+    {
+        lookDown(deltaTime);
+        controlState.cameraPitch = -1.0f;
+    }
+
+    /* Handle ESC key to exit */
+    if (normalKeys[27])
+    {
+        glutDestroyWindow(windowId);
+        exit(0);
+    }
 }
 
 int isKeyPressed(unsigned char key)
@@ -90,11 +146,11 @@ int isSpecialKeyPressed(int key)
 void initControls(int winId)
 {
     windowId = winId;
-    
+
     /* Reset all key states */
     memset(normalKeys, 0, sizeof(normalKeys));
     memset(specialKeys, 0, sizeof(specialKeys));
-    
+
     /* Set up GLUT callbacks */
     glutKeyboardFunc(handleKeyboard);
     glutKeyboardUpFunc(handleKeyboardUp);

@@ -66,23 +66,6 @@ void setupLighting(void)
 
 #include "camera.h"
 
-/* Function to draw a simple target marker */
-static void drawTargetMarker(void)
-{
-    float markerColor[4] = {1.0f, 0.2f, 0.2f, 1.0f};
-
-    glPushMatrix();
-    glTranslatef(tpsTargetX, tpsTargetY, tpsTargetZ);
-
-    glEnable(GL_LIGHTING);
-    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, markerColor);
-
-    /* Draw a small cube */
-    drawBox(0.2f, 0.2f, 0.2f);
-
-    glPopMatrix();
-}
-
 /* Main scene drawing function */
 void drawScene(double deltaTime)
 {
@@ -107,12 +90,6 @@ void drawScene(double deltaTime)
     glEnd();
     glPopMatrix();
 
-    /* Draw the target marker */
-    drawTargetMarker();
-
-    /* In-air animation with spinning and random poses */
-    robot_inAirAnimation(robot, deltaTime, 270.0f, 0.2f);
-
-    robot_update(robot, deltaTime);
+    /* Draw the robot (animation/update handled in engine.c) */
     robot_draw(robot);
 }

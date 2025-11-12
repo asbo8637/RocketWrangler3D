@@ -1,6 +1,7 @@
 #include "Robot.h"
 #include "../Shapes/master.h"
 #include <GL/glut.h>
+#include "./Robot_positions/poses.h"
 #include <stdlib.h>
 #include <math.h>
 
@@ -11,7 +12,9 @@ Robot *robot_create(void)
     if (!robot)
         return NULL;
 
-    robot->torso = NULL;
+    robot->core = NULL;
+    robot->lowerTorso = NULL;
+    robot->upperTorso = NULL;
     robot->head = NULL;
     robot->RUpperArm = NULL;
     robot->RForearm = NULL;
@@ -25,6 +28,8 @@ Robot *robot_create(void)
     // Initialize animation state
     robot->poseTimer = 0.0f;
     robot->spinTime = 0.0f;
+    robot->lastCrunchAngle = 1e9f;
+    robot->lastRollAngle = 1e9f;
 
     return robot;
 }
@@ -36,7 +41,9 @@ void robot_init(Robot *robot, float x, float y, float z)
         return;
 
     // Create joints
-    robot->torso = joint_create();
+    robot->core = joint_create();
+    robot->lowerTorso = joint_create();
+    robot->upperTorso = joint_create();
     robot->head = joint_create();
     robot->RUpperArm = joint_create();
     robot->RForearm = joint_create();
@@ -47,28 +54,39 @@ void robot_init(Robot *robot, float x, float y, float z)
     robot->LThigh = joint_create();
     robot->LCalf = joint_create();
 
-    // Position torso in world
-    robot->torso->x = x;
-    robot->torso->y = y;
-    robot->torso->z = z;
-    robot->torso->animatingRot = 0;
+    // Position core joint in world (root of entire robot)
+    robot->core->x = x;
+    robot->core->y = y;
+    robot->core->z = z;
 
-    // Head on top of torso
+    // Position lower torso (hips/lower back) relative to core
+    robot->lowerTorso->x = 0.0f;
+    robot->lowerTorso->y = 0.0f;
+    robot->lowerTorso->z = 0.0f;
+    robot->lowerTorso->angleSpeedCof = 0.4f;
+
+    // Upper torso (chest) - relative to lower torso top, pivot at bottom
+    robot->upperTorso->x = 0.0f;
+    robot->upperTorso->y = 0.225f;
+    robot->upperTorso->z = 0.0f;
+    robot->upperTorso->angleSpeedCof = 0.4f;
+
+    // Head on top of upper torso
     robot->head->x = 0.0f;
-    robot->head->y = 0.8f; // top of torso (torso height is 1.2, so 1.2/2 = 0.6 + margin)
+    robot->head->y = 0.65f;
     robot->head->z = 0.0f;
 
-    // Right upper arm (moved closer to match skinnier torso)
+    // Right upper arm
     robot->RUpperArm->x = 0.4f;
-    robot->RUpperArm->y = 0.5f;
+    robot->RUpperArm->y = 0.4f; // Near top of upper torso
     robot->RUpperArm->z = 0.0f;
 
     // Right forearm
     robot->RForearm->y = -0.5f;
 
-    // Left upper arm (moved closer to match skinnier torso)
+    // Left upper arm
     robot->LUpperArm->x = -0.4f;
-    robot->LUpperArm->y = 0.5f;
+    robot->LUpperArm->y = 0.4f; // Near top of upper torso
     robot->LUpperArm->z = 0.0f;
 
     // Left forearm
@@ -76,29 +94,31 @@ void robot_init(Robot *robot, float x, float y, float z)
 
     // Right thigh
     robot->RThigh->x = 0.3f;
-    robot->RThigh->y = -0.6f;
+    robot->RThigh->y = -0.25f;
     robot->RThigh->z = 0.0f;
 
     // Right calf
     robot->RCalf->y = -0.6f;
 
     // Left thigh
-    robot->LThigh->x = -0.3f; // left side
-    robot->LThigh->y = -0.6f; // below torso
+    robot->LThigh->x = -0.3f;
+    robot->LThigh->y = -0.25f;
     robot->LThigh->z = 0.0f;
 
     // Left calf
     robot->LCalf->y = -0.6f; // calf below knee
 
-    // Build hierarchy: torso -> head and limbs; upper limbs -> lower limbs
-    joint_addChild(robot->torso, robot->head);
-    joint_addChild(robot->torso, robot->RUpperArm);
+    // Build hierarchy: core -> lowerTorso -> upperTorso -> head/arms; lowerTorso -> legs
+    joint_addChild(robot->core, robot->lowerTorso);
+    joint_addChild(robot->lowerTorso, robot->upperTorso);
+    joint_addChild(robot->upperTorso, robot->head);
+    joint_addChild(robot->upperTorso, robot->RUpperArm);
     joint_addChild(robot->RUpperArm, robot->RForearm);
-    joint_addChild(robot->torso, robot->LUpperArm);
+    joint_addChild(robot->upperTorso, robot->LUpperArm);
     joint_addChild(robot->LUpperArm, robot->LForearm);
-    joint_addChild(robot->torso, robot->RThigh);
+    joint_addChild(robot->lowerTorso, robot->RThigh);
     joint_addChild(robot->RThigh, robot->RCalf);
-    joint_addChild(robot->torso, robot->LThigh);
+    joint_addChild(robot->lowerTorso, robot->LThigh);
     joint_addChild(robot->LThigh, robot->LCalf);
 }
 
@@ -108,8 +128,9 @@ void robot_update(Robot *robot, float deltaTime)
     if (!robot)
         return;
 
-    // Update all joint animations
-    joint_updateAnimation(robot->torso, deltaTime);
+    // Update all joint animations (core has no animation)
+    joint_updateAnimation(robot->lowerTorso, deltaTime);
+    joint_updateAnimation(robot->upperTorso, deltaTime);
     joint_updateAnimation(robot->head, deltaTime);
     joint_updateAnimation(robot->RUpperArm, deltaTime);
     joint_updateAnimation(robot->RForearm, deltaTime);
@@ -123,7 +144,8 @@ void robot_update(Robot *robot, float deltaTime)
 
 // Set all joint angles for a stance (animates to target angles)
 void robot_setStance(Robot *robot,
-                     float torsoX, float torsoY, float torsoZ,
+                     float lowerTorsoX, float lowerTorsoY, float lowerTorsoZ,
+                     float upperTorsoX, float upperTorsoY, float upperTorsoZ,
                      float headX, float headY, float headZ,
                      float rUpperArmX, float rUpperArmY, float rUpperArmZ,
                      float rForearmX, float rForearmY, float rForearmZ,
@@ -138,8 +160,11 @@ void robot_setStance(Robot *robot,
     if (!robot)
         return;
 
-    // Animate torso rotation
-    joint_animateToAngle(robot->torso, torsoX, torsoY, torsoZ, speed);
+    // Animate lower torso rotation
+    joint_animateToAngle(robot->lowerTorso, lowerTorsoX, lowerTorsoY, lowerTorsoZ, speed);
+
+    // Animate upper torso rotation
+    joint_animateToAngle(robot->upperTorso, upperTorsoX, upperTorsoY, upperTorsoZ, speed);
 
     // Animate head rotation
     joint_animateToAngle(robot->head, headX, headY, headZ, speed);
@@ -161,26 +186,49 @@ void robot_setStance(Robot *robot,
     joint_animateToAngle(robot->LCalf, lCalfX, lCalfY, lCalfZ, speed);
 }
 
-// In-air animation: random poses with continuous spinning
-void robot_inAirAnimation(Robot *robot, float deltaTime, float spinSpeed, float poseDuration)
+// In-air animation
+// Random poses with some sick flips
+void robot_inAirAnimation(Robot *robot, float deltaTime, float spinSpeed, float poseDuration, float crunchAngle, float rollAngle)
 {
     if (!robot)
         return;
 
     // Update pose timer and switch poses
     robot->poseTimer += deltaTime;
-    if (robot->poseTimer >= poseDuration)
+    if (robot->poseTimer >= poseDuration || crunchAngle != robot->lastCrunchAngle || rollAngle != robot->lastRollAngle)
     {
         robot->poseTimer = 0.0f;
 
-        // Generate random pose (you'll need to include the poses header or implement inline)
-        extern void robot_randompose(Robot * robot);
-        robot_randompose(robot);
+        // Generate random pose with current factors
+        robot_randompose(robot, crunchAngle, rollAngle);
+        robot->lastCrunchAngle = crunchAngle;
+        robot->lastRollAngle = rollAngle;
     }
 
-    // Continuous torso spinning - directly set rotation
-    robot->spinTime += deltaTime;
-    robot->torso->rotX = fmod(robot->spinTime * spinSpeed, 360.0f);
+    // Continuous lower torso spinning - add delta rotation each frame
+    robot->lowerTorso->rotX -= spinSpeed * deltaTime;
+    if(rollAngle!=0.0f){
+        robot->lowerTorso->animatingRot=0;
+    }
+    else{
+        robot->lowerTorso->animatingRot=1;
+    }
+    robot->lowerTorso->rotZ += rollAngle * deltaTime * 1.0f;
+
+    // Smoothly interpolate core's Y rotation toward target roll angle
+    float targetRotY = -rollAngle * 1.5f;
+    robot->core->rotY += (targetRotY - robot->core->rotY) * deltaTime * 6.0f;
+
+    // Keep rotation in 0-360 range for cleaner values
+    if (robot->lowerTorso->rotX < 0.0f)
+        robot->lowerTorso->rotX += 360.0f;
+    else if (robot->lowerTorso->rotX >= 360.0f)
+        robot->lowerTorso->rotX -= 360.0f;
+
+    if (robot->lowerTorso->rotZ < 0.0f)
+        robot->lowerTorso->rotZ += 360.0f;
+    else if (robot->lowerTorso->rotZ >= 360.0f)
+        robot->lowerTorso->rotZ -= 360.0f;
 }
 
 // Draw the robot
@@ -192,68 +240,75 @@ void robot_draw(const Robot *robot)
     float robotColor[4] = {0.7f, 0.7f, 0.9f, 1.0f};
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, robotColor);
 
-    /* Draw torso (box) - skinnier width and depth */
+    // Draw lower torso
     glPushMatrix();
-    joint_applyTransform(robot->torso);
-    drawBox(0.6f, 1.2f, 0.3f);
+    joint_applyTransform(robot->lowerTorso);
+    drawBox(0.6f, 0.45f, 0.3f);
     glPopMatrix();
 
-    /* Draw head (sphere) */
+    // Draw upper torso
+    glPushMatrix();
+    joint_applyTransform(robot->upperTorso);
+    glTranslatef(0.0f, 0.225f, 0.0f);
+    drawBox(0.6f, 0.45f, 0.3f);
+    glPopMatrix();
+
+    // Draw head (sphere)
     glPushMatrix();
     joint_applyTransform(robot->head);
     drawSphere(0.3f, 16, 16);
     glPopMatrix();
 
-    /* Draw RUpperArm (box with offset to center along length) */
+    // Draw RUpperArm (box with offset to center along length)
     glPushMatrix();
     joint_applyTransform(robot->RUpperArm);
     glTranslatef(0.0f, -0.25f, 0.0f); // offset half length to draw centered on pivot
     drawBox(0.15f, 0.5f, 0.15f);
     glPopMatrix();
 
-    /* Draw RForearm (box with offset) */
+    // Draw RForearm (box with offset)
     glPushMatrix();
     joint_applyTransform(robot->RForearm);
     glTranslatef(0.0f, -0.25f, 0.0f);
     drawBox(0.15f, 0.5f, 0.15f);
     glPopMatrix();
 
-    /* Draw LUpperArm (box with offset) */
+    // Draw LUpperArm (box with offset)
     glPushMatrix();
     joint_applyTransform(robot->LUpperArm);
     glTranslatef(0.0f, -0.25f, 0.0f);
     drawBox(0.15f, 0.5f, 0.15f);
     glPopMatrix();
 
-    /* Draw LForearm (box with offset) */
+    // Draw LForearm (box with offset)
     glPushMatrix();
     joint_applyTransform(robot->LForearm);
     glTranslatef(0.0f, -0.25f, 0.0f);
     drawBox(0.15f, 0.5f, 0.15f);
     glPopMatrix();
 
-    /* Draw RThigh (box with offset) */
+    // Draw RThigh (box with offset)
     glPushMatrix();
     joint_applyTransform(robot->RThigh);
     glTranslatef(0.0f, -0.3f, 0.0f);
     drawBox(0.2f, 0.6f, 0.2f);
     glPopMatrix();
 
-    /* Draw RCalf (box with offset) */
+    // Draw RCalf (box with offset)
     glPushMatrix();
     joint_applyTransform(robot->RCalf);
     glTranslatef(0.0f, -0.3f, 0.0f);
     drawBox(0.2f, 0.6f, 0.2f);
     glPopMatrix();
 
-    /* Draw LThigh (box with offset) */
+    // Draw LThigh (box with offset)
     glPushMatrix();
     joint_applyTransform(robot->LThigh);
     glTranslatef(0.0f, -0.3f, 0.0f);
     drawBox(0.2f, 0.6f, 0.2f);
     glPopMatrix();
 
-    /* Draw LCalf (box with offset) */
+    // Draw LCalf (box with offset)
     glPushMatrix();
     joint_applyTransform(robot->LCalf);
     glTranslatef(0.0f, -0.3f, 0.0f);
@@ -267,7 +322,9 @@ void robot_destroy(Robot *robot)
     if (!robot)
         return;
 
-    joint_free(robot->torso);
+    joint_free(robot->core);
+    joint_free(robot->lowerTorso);
+    joint_free(robot->upperTorso);
     joint_free(robot->head);
     joint_free(robot->RUpperArm);
     joint_free(robot->RForearm);
