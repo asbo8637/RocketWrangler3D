@@ -39,7 +39,12 @@ static void sleep_us(unsigned int micros)
 static void display(void)
 {
     /* This is called when glutPostRedisplay() is triggered from idle() */
-    /* Just render - all updates happen in idle() */
+    /* Just render - no timing updates here */
+    render(targetFrameTime);
+}
+
+static void idle(void)
+{
     double currentTime = now_seconds();
     double deltaTime = currentTime - lastTimeSec;
 
@@ -47,23 +52,11 @@ static void display(void)
     if (deltaTime > 0.1)
         deltaTime = 0.1;
 
-    /* Update FPS counter */
-    updateFPS(deltaTime);
-
-    /* Render frame */
-    render(deltaTime);
-
-    /* Store time for next frame */
-    lastTimeSec = currentTime;
-}
-
-static void idle(void)
-{
-    double currentTime = now_seconds();
-    double frameTime = currentTime - lastTimeSec;
-
     /* Accumulate time */
-    accumulator += frameTime;
+    accumulator += deltaTime;
+
+    /* Update last time */
+    lastTimeSec = currentTime;
 
     /* If we haven't reached our target frame time yet, sleep */
     if (accumulator < targetFrameTime)
@@ -77,9 +70,15 @@ static void idle(void)
         return;
     }
 
-    /* Process inputs and update game state */
-    processInputs(frameTime);
-    updateEngine(frameTime);
+    /* Update FPS counter */
+    updateFPS(accumulator);
+
+    /* Process inputs and update game state with accumulated time */
+    processInputs(accumulator);
+    updateEngine(accumulator);
+
+    /* Reset accumulator */
+    accumulator = 0.0;
 
     /* Trigger a new frame */
     glutPostRedisplay();

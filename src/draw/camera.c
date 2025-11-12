@@ -4,13 +4,12 @@
 #include "camera.h"
 
 /* Camera variables */
-float tpsTargetX = 0.f, tpsTargetY = 2.0f, tpsTargetZ = -20.f; /* "player" anchor */
-float tpsYaw  = 0.0f;     /* radians; left/right orbit */
-float tpsPitch = -0.35f;   /* radians; up/down (clamped) */
-float tpsDist  = 18.0f;   /* boom length (zoom) */
+float tpsTargetX = 0.f, tpsTargetY = 2.0f, tpsTargetZ = -20.f;
+float tpsYaw  = 1.57f;     // radians left/right orbit 
+float tpsPitch = -0.1f;   // radians up/down (clamped)
+float tpsDist  = 25.0f;   // distance from target
 
 /* Camera constants */
-static const float baseMoveSpeed = 10.0f;   /* Units per second */
 static const float baseTurnSpeed = 2.0f;    /* Radians per second */
 static const float baseZoomSpeed = 20.0f;   /* Units per second */
 static const float tpsMinDist = 5.0f;
@@ -42,41 +41,6 @@ void applyTPSView(void)
         tpsTargetX, tpsTargetY, tpsTargetZ,
         0.f, 1.f, 0.f
     );
-}
-
-/* Camera movement functions */
-void moveForward(float deltaTime) {
-    float speed = baseMoveSpeed * deltaTime;
-    tpsTargetX += speed * cosf(tpsYaw);
-    tpsTargetZ -= speed * sinf(tpsYaw);
-}
-
-void moveBackward(float deltaTime) {
-    float speed = baseMoveSpeed * deltaTime;
-    tpsTargetX -= speed * cosf(tpsYaw);
-    tpsTargetZ += speed * sinf(tpsYaw);
-}
-
-void moveLeft(float deltaTime) {
-    float speed = baseMoveSpeed * deltaTime;
-    tpsTargetX -= speed * sinf(tpsYaw);
-    tpsTargetZ -= speed * cosf(tpsYaw);
-}
-
-void moveRight(float deltaTime) {
-    float speed = baseMoveSpeed * deltaTime;
-    tpsTargetX += speed * sinf(tpsYaw);
-    tpsTargetZ += speed * cosf(tpsYaw);
-}
-
-void moveUp(float deltaTime) {
-    float speed = baseMoveSpeed * deltaTime;
-    tpsTargetY += speed;
-}
-
-void moveDown(float deltaTime) {
-    float speed = baseMoveSpeed * deltaTime;
-    tpsTargetY -= speed;
 }
 
 /* Camera rotation and zoom */

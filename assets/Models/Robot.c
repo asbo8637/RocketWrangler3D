@@ -63,13 +63,13 @@ void robot_init(Robot *robot, float x, float y, float z)
     robot->lowerTorso->x = 0.0f;
     robot->lowerTorso->y = 0.0f;
     robot->lowerTorso->z = 0.0f;
-    robot->lowerTorso->angleSpeedCof = 0.4f;
+    robot->lowerTorso->angleSpeedCof = 0.3f;
 
     // Upper torso (chest) - relative to lower torso top, pivot at bottom
     robot->upperTorso->x = 0.0f;
     robot->upperTorso->y = 0.225f;
     robot->upperTorso->z = 0.0f;
-    robot->upperTorso->angleSpeedCof = 0.4f;
+    robot->upperTorso->angleSpeedCof = 0.5f;
 
     // Head on top of upper torso
     robot->head->x = 0.0f;
@@ -128,7 +128,8 @@ void robot_update(Robot *robot, float deltaTime)
     if (!robot)
         return;
 
-    // Update all joint animations (core has no animation)
+    // Update all joint animations
+    // Core has no animation
     joint_updateAnimation(robot->lowerTorso, deltaTime);
     joint_updateAnimation(robot->upperTorso, deltaTime);
     joint_updateAnimation(robot->head, deltaTime);

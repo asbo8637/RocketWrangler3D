@@ -60,35 +60,20 @@ void processInputs(double deltaTime)
     /* Process movement keys and update control state */
     if ((normalKeys['w'] || normalKeys['W']) && !(normalKeys['s'] || normalKeys['S']))
     {
-        moveForward(deltaTime);
         controlState.moveZ = 1.0f;
     }
     else if ((normalKeys['s'] || normalKeys['S']) && !(normalKeys['w'] || normalKeys['W']))
     {
-        moveBackward(deltaTime);
         controlState.moveZ = -1.0f;
     }
 
     if ((normalKeys['a'] || normalKeys['A']) && !(normalKeys['d'] || normalKeys['D']))
     {
-        moveLeft(deltaTime);
         controlState.moveX = -1.0f;
     }
     else if ((normalKeys['d'] || normalKeys['D']) && !(normalKeys['a'] || normalKeys['A']))
     {
-        moveRight(deltaTime);
         controlState.moveX = 1.0f;
-    }
-
-    if ((normalKeys['q'] || normalKeys['Q']) && !(normalKeys['e'] || normalKeys['E']))
-    {
-        moveUp(deltaTime);
-        controlState.moveY = 1.0f;
-    }
-    else if ((normalKeys['e'] || normalKeys['E']) && !(normalKeys['q'] || normalKeys['Q']))
-    {
-        moveDown(deltaTime);
-        controlState.moveY = -1.0f;
     }
 
     /* Zoom */

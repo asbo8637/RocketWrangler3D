@@ -8,14 +8,6 @@ extern float tpsYaw, tpsPitch, tpsDist;           /* Camera orientation and dist
 /* Camera view function */
 void applyTPSView(void);
 
-/* Movement functions (all take deltaTime in seconds) */
-void moveForward(float deltaTime);
-void moveBackward(float deltaTime);
-void moveLeft(float deltaTime);
-void moveRight(float deltaTime);
-void moveUp(float deltaTime);
-void moveDown(float deltaTime);
-
 /* Camera control functions (all take deltaTime in seconds) */
 void turnLeft(float deltaTime);
 void turnRight(float deltaTime);

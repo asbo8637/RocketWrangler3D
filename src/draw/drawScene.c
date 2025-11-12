@@ -77,17 +77,51 @@ void drawScene(double deltaTime)
     /* Draw light glyph */
     drawLightGlyph(lightPos, 0.6f);
 
-    /* Basic ground plane */
+    /* Infinite-looking ground plane (large repeated textured quad) */
     glPushMatrix();
-    float groundColor[4] = {0.3f, 0.5f, 0.3f, 1.0f};
-    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, groundColor);
-    glBegin(GL_QUADS);
+    const float yGround = -0.1f;
+    const float halfSize = 24000.0f;     /* world half-size of ground quad */
+    const float tileWorld = 4.0f;      /* world units per texture repeat */
+
     glNormal3f(0.0f, 1.0f, 0.0f);
-    glVertex3f(-100.0f, -0.1f, -100.0f);
-    glVertex3f(-100.0f, -0.1f, 100.0f);
-    glVertex3f(100.0f, -0.1f, 100.0f);
-    glVertex3f(100.0f, -0.1f, -100.0f);
-    glEnd();
+
+    if (groundTexture != 0u)
+    {
+        /* Use texture if available */
+        float white[4] = {1.f, 1.f, 1.f, 1.f};
+        glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, white);
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, groundTexture);
+        glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        /* Explicit 0..repeat mapping like hw6 */
+        const float repeat = (halfSize * 2.0f) / tileWorld;
+        glBegin(GL_QUADS);
+        glTexCoord2f(0.0f,   0.0f   ); glVertex3f(-halfSize, yGround, -halfSize);
+        glTexCoord2f(repeat, 0.0f   ); glVertex3f( halfSize, yGround, -halfSize);
+        glTexCoord2f(repeat, repeat ); glVertex3f( halfSize, yGround,  halfSize);
+        glTexCoord2f(0.0f,   repeat ); glVertex3f(-halfSize, yGround,  halfSize);
+        glEnd();
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glDisable(GL_TEXTURE_2D);
+    }
+    else
+    {
+        /* Fallback flat color if texture not loaded */
+        float groundColor[4] = {0.3f, 0.5f, 0.3f, 1.0f};
+        glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, groundColor);
+        glBegin(GL_QUADS);
+        glVertex3f(-100.0f, yGround, -100.0f);
+        glVertex3f(-100.0f, yGround,  100.0f);
+        glVertex3f( 100.0f, yGround,  100.0f);
+        glVertex3f( 100.0f, yGround, -100.0f);
+        glEnd();
+    }
     glPopMatrix();
 
     /* Draw the robot (animation/update handled in engine.c) */
