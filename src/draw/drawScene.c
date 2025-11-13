@@ -6,6 +6,7 @@
 #include "init.h"
 #include "../../assets/Shapes/master.h"
 #include "../../assets/Models/joint_class.h"
+#include "../game/rockets.h"
 
 /* Lighting */
 static float lightPos[4] = {30.f, 25.f, 10.f, 1.f}; /* positional */
@@ -13,9 +14,6 @@ static float lightAmb[4] = {0.1f, 0.1f, 0.1f, 1.f};
 static float lightDif[4] = {1.0f, 1.0f, 0.95f, 1.f};
 static float lightSpe[4] = {1.00f, 1.00f, 1.00f, 1.f};
 
-/* =========================
-   Basic scene functions
-   ========================= */
 static void drawLightGlyph(const float pos[4], float radius)
 {
     float x = pos[0], y = pos[1], z = pos[2];
@@ -124,6 +122,7 @@ void drawScene(double deltaTime)
     }
     glPopMatrix();
 
-    /* Draw the robot (animation/update handled in engine.c) */
+    /* Draw the robot and all live rockets */
     robot_draw(robot);
+    rockets_draw();
 }

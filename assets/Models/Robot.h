@@ -2,6 +2,7 @@
 #define ROBOT_H
 
 #include "joint_class.h"
+#include "Rocket.h"
 
 // Robot "class" structure
 typedef struct Robot
@@ -59,6 +60,12 @@ void robot_setStance(Robot *robot,
 // spinSpeed: degrees per second for torso rotation
 // poseDuration: seconds between random pose changes
 void robot_inAirAnimation(Robot *robot, float deltaTime, float spinSpeed, float poseDuration, float crunchAngle, float rollAngle);
+
+// Riding animation
+void robot_riding_animation(Robot *robot, float deltaTime);
+
+void grab_rocket(Robot *robot, Rocket *rocket);
+
 
 // Destroy robot and free resources
 void robot_destroy(Robot *robot);

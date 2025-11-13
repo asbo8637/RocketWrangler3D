@@ -2,6 +2,7 @@
 #include "../Shapes/master.h"
 #include <GL/glut.h>
 #include "./Robot_positions/poses.h"
+#include "Rocket.h"
 #include <stdlib.h>
 #include <math.h>
 
@@ -232,6 +233,16 @@ void robot_inAirAnimation(Robot *robot, float deltaTime, float spinSpeed, float 
         robot->lowerTorso->rotZ -= 360.0f;
 }
 
+// Riding animation
+void robot_riding_animation(Robot *robot, float deltaTime)
+{
+    if (!robot)
+        return;
+
+    // Animate the robot in a riding pose
+    robot_ridepose(robot);
+}
+
 // Draw the robot
 void robot_draw(const Robot *robot)
 {
@@ -316,6 +327,21 @@ void robot_draw(const Robot *robot)
     drawBox(0.2f, 0.6f, 0.2f);
     glPopMatrix();
 }
+
+void grab_rocket(Robot *robot, Rocket *rocket)
+{
+    if (!robot || !rocket)
+        return;
+
+    // Position rocket on his ass
+    rocket->shell->x = 0.0f;
+    rocket->shell->y = -1.2f;
+    rocket->shell->z = -4.0f;
+
+    // Make rocket a child of robot
+    joint_addChild(robot->core, rocket->shell);
+}
+
 
 // Destroy robot and free resources
 void robot_destroy(Robot *robot)

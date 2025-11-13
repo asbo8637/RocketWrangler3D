@@ -11,4 +11,7 @@ void robot_tpose(Robot *robot);
 // rollAngle: roll bias applied across joints
 void robot_randompose(Robot *robot, float crunchFactor, float rollAngle);
 
+// Riding stance
+void robot_ridepose(Robot *robot);
+
 #endif // ROBOT_POSES_H
