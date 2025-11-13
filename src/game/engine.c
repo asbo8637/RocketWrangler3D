@@ -10,8 +10,8 @@ float robo_velocityX = 0.0f;
 float robo_velocityY = 0.0f;
 float robo_velocityZ = -30.0f;
 
-float gravity = 70.0f; // units per second squared
-float speedCof = 12.0f;
+float gravity = 30.0f; // units per second squared
+float speedCof = 8.0f;
 
 void initEngine(void)
 {
@@ -24,9 +24,9 @@ void move_robot(double deltaTime)
     robo_velocityZ -= controlState.moveZ * (float)deltaTime * speedCof;
     robo_velocityY -= gravity * (float)deltaTime;
 
-    if(robot->core->y < 0.0f)
+    if(robot->core->y < 2.0f)
     {
-        robo_velocityY = fabs(robo_velocityY);
+        robo_velocityY = fabs(robo_velocityY)*0.979f;
     }
 
     robot->core->x += robo_velocityX * (float)deltaTime;
@@ -37,18 +37,16 @@ void move_robot(double deltaTime)
 void update_camera(double deltaTime)
 {
     tpsTargetX = robot->core->x;
-    tpsTargetY = robot->core->y + 5.0f;
-    tpsTargetZ = robot->core->z;
+    tpsTargetY = 10 + 0.5f * robot->core->y;
+    tpsTargetZ = robot->core->z+10.0f;
+    tpsDist = fmin(fmax(-30.0f + 1.2f * fabs(robo_velocityZ), 10.0f), 22.0f);
+    tpsYaw = 1.57f - robo_velocityX * 0.01f;
 }
 
 
 void updateEngine(double deltaTime)
 {
-    /* Update game state based on deltaTime
-       This will run every frame with deltaTime in seconds */
-
-    /* Robot animation and update */
-    float CrunchAngle = fminf(30.0f + controlState.moveZ * 60.0f, 65.0f); // Crunch more when moving up
+    float CrunchAngle = fminf(30.0f + controlState.moveZ * 60.0f, 60.0f); // Crunch more when moving up
     float SpinSpeed = 500.0f + (250.0f * controlState.moveZ);
     float RollAngle = controlState.moveX * 45.0f; 
     robot_inAirAnimation(robot, deltaTime, SpinSpeed, 0.3f, CrunchAngle, RollAngle);
