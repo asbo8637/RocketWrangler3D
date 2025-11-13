@@ -336,7 +336,15 @@ void grab_rocket(Robot *robot, Rocket *rocket)
     // Position rocket on his ass
     rocket->shell->x = 0.0f;
     rocket->shell->y = -1.2f;
-    rocket->shell->z = -4.0f;
+    rocket->shell->z = -3.0f;
+
+    robot->lowerTorso->rotX = 0.0f;
+    robot->lowerTorso->rotY = 0.0f;
+    robot->lowerTorso->rotZ = 0.0f;
+
+    robot->core->rotY = 0.0f;
+    robot->core->rotX = 0.0f;
+    robot->core->rotZ = 0.0f;
 
     // Make rocket a child of robot
     joint_addChild(robot->core, rocket->shell);

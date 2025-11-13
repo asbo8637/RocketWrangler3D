@@ -6,7 +6,7 @@
 /* Camera variables */
 float tpsTargetX = 0.f, tpsTargetY = 2.0f, tpsTargetZ = -20.f;
 float tpsYaw  = 1.57f;     // radians left/right orbit 
-float tpsPitch = -0.1f;   // radians up/down (clamped)
+float tpsPitch = -0.35f;   // radians up/down (clamped)
 float tpsDist  = 25.0f;   // distance from target
 
 /* Camera constants */

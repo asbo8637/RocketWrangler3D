@@ -2,7 +2,6 @@
 
 // POSIX timing headers for Linux/WSL
 #include <time.h>
-#include <unistd.h>
 
 #ifdef __APPLE__
 #include <GLUT/glut.h>
@@ -19,8 +18,7 @@
 // Globals
 static GLint win = 0;
 static double lastTimeSec = 0.0;                  // Last frame timestamp (seconds)
-static double accumulator = 0.0;                  // Time accumulator for frame limiting
-static const double targetFrameTime = 1.0 / 120.0; // Target time per frame in seconds
+static double lastFrameDelta = 0.0;               // Duration of the previous frame (seconds)
 
 // High-resolution clock in seconds (POSIX)
 static double now_seconds(void)
@@ -30,17 +28,11 @@ static double now_seconds(void)
     return (double)ts.tv_sec + (double)ts.tv_nsec * 1e-9;
 }
 
-// Sleep helper (microseconds, POSIX)
-static void sleep_us(unsigned int micros)
-{
-    usleep(micros);
-}
-
 static void display(void)
 {
     /* This is called when glutPostRedisplay() is triggered from idle() */
     /* Just render - no timing updates here */
-    render(targetFrameTime);
+    render(lastFrameDelta);
 }
 
 static void idle(void)
@@ -51,34 +43,23 @@ static void idle(void)
     /* Cap delta time to avoid large time steps */
     if (deltaTime > 0.1)
         deltaTime = 0.1;
+    if (deltaTime < 0.0)
+        deltaTime = 0.0;
 
-    /* Accumulate time */
-    accumulator += deltaTime;
 
     /* Update last time */
     lastTimeSec = currentTime;
 
-    /* If we haven't reached our target frame time yet, sleep */
-    if (accumulator < targetFrameTime)
-    {
-        /* Calculate how long to sleep */
-        double timeToSleep = (targetFrameTime - accumulator) * 1000000; /* Convert to microseconds */
-        if (timeToSleep > 100)                                          /* Only sleep if we have meaningful time to wait */
-        {
-            sleep_us((unsigned int)timeToSleep);
-        }
-        return;
-    }
 
     /* Update FPS counter */
-    updateFPS(accumulator);
+    updateFPS(deltaTime);
 
     /* Process inputs and update game state with accumulated time */
-    processInputs(accumulator);
-    updateEngine(accumulator);
+    processInputs(deltaTime);
+    updateEngine(deltaTime);
 
-    /* Reset accumulator */
-    accumulator = 0.0;
+    /* Store delta for the renderer */
+    lastFrameDelta = deltaTime;
 
     /* Trigger a new frame */
     glutPostRedisplay();
@@ -100,7 +81,7 @@ int main(int argc, char **argv)
 
     /* Initialize timing */
     lastTimeSec = now_seconds();
-    accumulator = 0.0;
+    lastFrameDelta = 0.0;
 
     /* Set up GLUT callbacks */
     glutDisplayFunc(display);

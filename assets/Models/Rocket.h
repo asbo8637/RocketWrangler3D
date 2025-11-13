@@ -17,7 +17,7 @@ typedef struct Rocket
 // Create a new rocket instance
 Rocket *rocket_create(void);
 // Initialize rocket joints and hierarchy
-void rocket_init(Rocket *rocket, float x, float y, float z);
+void rocket_init(Rocket *rocket, float x, float y, float z, float vx, float vy, float vz);
 // Update rocket animation
 void rocket_update(Rocket *rocket, float deltaTime);
 // Draw the rocket

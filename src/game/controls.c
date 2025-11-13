@@ -49,15 +49,16 @@ void handleSpecialKeysUp(int key, int x, int y)
 
 void processInputs(double deltaTime)
 {
-    /* Reset control state */
+    // Reset controls
     controlState.moveX = 0.0f;
     controlState.moveY = 0.0f;
     controlState.moveZ = 0.0f;
     controlState.cameraYaw = 0.0f;
     controlState.cameraPitch = 0.0f;
     controlState.cameraZoom = 0.0f;
+    controlState.jump = 0.0f;
 
-    /* Process movement keys and update control state */
+    // Process movement keys
     if ((normalKeys['w'] || normalKeys['W']) && !(normalKeys['s'] || normalKeys['S']))
     {
         controlState.moveZ = 1.0f;
@@ -86,6 +87,11 @@ void processInputs(double deltaTime)
     {
         zoomOut(deltaTime);
         controlState.cameraZoom = -1.0f;
+    }
+
+    if (normalKeys[' '])
+    {
+        controlState.jump = 1.0f;
     }
 
     /* Camera rotation */

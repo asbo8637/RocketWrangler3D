@@ -21,7 +21,7 @@ Rocket *rocket_create(void)
     return rocket;
 }
 
-void rocket_init(Rocket *rocket, float x, float y, float z)
+void rocket_init(Rocket *rocket, float x, float y, float z, float vx, float vy, float vz)
 {
     if (!rocket)
         return;
@@ -33,6 +33,11 @@ void rocket_init(Rocket *rocket, float x, float y, float z)
     rocket->shell->x = x;
     rocket->shell->y = y;
     rocket->shell->z = z;
+    
+    rocket->rocket_velocityX = vx;
+    rocket->rocket_velocityY = vy;
+    rocket->rocket_velocityZ = vz;
+
     rocket->shell->rotX = 90.0f;
 }
 
