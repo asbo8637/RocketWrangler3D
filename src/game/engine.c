@@ -49,7 +49,7 @@ void updateEngine(double deltaTime)
 
     /* Robot animation and update */
     float CrunchAngle = fminf(30.0f + controlState.moveZ * 60.0f, 65.0f); // Crunch more when moving up
-    float SpinSpeed = 350.0f + (180.0f * controlState.moveZ);
+    float SpinSpeed = 600.0f + (250.0f * controlState.moveZ);
     float RollAngle = controlState.moveX * 45.0f; 
     robot_inAirAnimation(robot, deltaTime, SpinSpeed, 0.3f, CrunchAngle, RollAngle);
     robot_update(robot, deltaTime);
