@@ -20,7 +20,7 @@
 static GLint win = 0;
 static double lastTimeSec = 0.0;                  // Last frame timestamp (seconds)
 static double accumulator = 0.0;                  // Time accumulator for frame limiting
-static const double targetFrameTime = 1.0 / 60.0; // Target time per frame in seconds
+static const double targetFrameTime = 1.0 / 120.0; // Target time per frame in seconds
 
 // High-resolution clock in seconds (POSIX)
 static double now_seconds(void)
