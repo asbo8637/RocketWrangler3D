@@ -328,15 +328,30 @@ void robot_draw(const Robot *robot)
     glPopMatrix();
 }
 
+void let_go_rocket(Robot *robot){
+    robot->lowerTorso->x = 0.0f;
+    robot->lowerTorso->y = 0.0f;
+    robot->lowerTorso->z = 0.0f;
+}
+
 void grab_rocket(Robot *robot, Rocket *rocket)
 {
     if (!robot || !rocket)
         return;
 
+    robot->core->x = rocket->shell->x;
+    robot->core->y = rocket->shell->y;
+    robot->core->z = rocket->shell->z;
+
     // Position rocket on his ass
     rocket->shell->x = 0.0f;
-    rocket->shell->y = -1.2f;
+    rocket->shell->y = 0.0f;
     rocket->shell->z = -3.0f;
+    
+    //Elevate robot lower torso on top
+    robot->lowerTorso->x = 0.0f;
+    robot->lowerTorso->y = 1.2f;
+    robot->lowerTorso->z = 0.0f;
 
     robot->lowerTorso->rotX = 0.0f;
     robot->lowerTorso->rotY = 0.0f;

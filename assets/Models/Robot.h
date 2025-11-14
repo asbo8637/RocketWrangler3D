@@ -65,7 +65,7 @@ void robot_inAirAnimation(Robot *robot, float deltaTime, float spinSpeed, float 
 void robot_riding_animation(Robot *robot, float deltaTime);
 
 void grab_rocket(Robot *robot, Rocket *rocket);
-
+void let_go_rocket(Robot *robot);
 
 // Destroy robot and free resources
 void robot_destroy(Robot *robot);

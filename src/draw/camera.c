@@ -2,6 +2,7 @@
 #include <GL/glu.h>
 #include <math.h>
 #include "camera.h"
+#include "../../assets/Models/joint_class.h"
 
 /* Camera variables */
 float tpsTargetX = 0.f, tpsTargetY = 2.0f, tpsTargetZ = -20.f;
@@ -16,6 +17,9 @@ static const float tpsMinDist = 5.0f;
 static const float tpsMaxDist = 80.0f;
 static const float tpsMinPitch = -1.2f;
 static const float tpsMaxPitch = 1.2f;
+static const float CAMERA_POS_SMOOTH_RATE = 10.0f;
+static const float CAMERA_YAW_SMOOTH_RATE = 8.0f;
+static const float CAMERA_DIST_SMOOTH_RATE = 6.0f;
 
 /* Helper function for camera direction */
 static void tpsForward(float yaw, float pitch, float *fx, float *fy, float *fz)
@@ -41,6 +45,39 @@ void applyTPSView(void)
         tpsTargetX, tpsTargetY, tpsTargetZ,
         0.f, 1.f, 0.f
     );
+}
+
+void camera_update(const Joint *robotCore, float velocityX, float velocityZ, double deltaTime)
+{
+    if (!robotCore)
+        return;
+
+    const float dt = (float)deltaTime;
+    const float desiredTargetX = robotCore->x;
+    const float desiredTargetY = 10.0f + robotCore->y;
+    const float desiredTargetZ = robotCore->z + 10.0f;
+    const float desiredDist = fminf(fmaxf(-30.0f + 1.0f * fabsf(velocityZ), 8.0f), 16.0f);
+    const float desiredYaw = 1.57f - velocityX * 0.01f;
+    const float basePitch = -0.10f;
+    const float altitudeInfluence = 0.007f;
+    const float minPitch = -1.0f;
+    const float maxPitch = 0.0f;
+    float altitudeDelta = fmaxf(robotCore->y - 10.0f, 0.0f);
+    float desiredPitch = basePitch - altitudeInfluence * altitudeDelta;
+    if (desiredPitch < minPitch) desiredPitch = minPitch;
+    else if (desiredPitch > maxPitch) desiredPitch = maxPitch;
+
+    const float posAlpha = 1.0f - expf(-CAMERA_POS_SMOOTH_RATE * dt);
+    const float distAlpha = 1.0f - expf(-CAMERA_DIST_SMOOTH_RATE * dt);
+    const float yawAlpha = 1.0f - expf(-CAMERA_YAW_SMOOTH_RATE * dt);
+
+    tpsTargetX += (desiredTargetX - tpsTargetX) * posAlpha;
+    tpsTargetY += (desiredTargetY - tpsTargetY) * posAlpha;
+    tpsTargetZ += (desiredTargetZ - tpsTargetZ) * posAlpha;
+    tpsDist += (desiredDist - tpsDist) * distAlpha;
+    tpsYaw += (desiredYaw - tpsYaw) * yawAlpha;
+    tpsDist = fminf(fmaxf(tpsDist, 10.0f), 22.0f);
+    tpsPitch = desiredPitch;
 }
 
 /* Camera rotation and zoom */
