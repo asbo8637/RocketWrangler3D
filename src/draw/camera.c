@@ -47,21 +47,23 @@ void applyTPSView(void)
     );
 }
 
-void camera_update(const Joint *robotCore, float velocityX, float velocityZ, double deltaTime)
+void camera_update(const Joint *robotCore, float velocityX, float velocityZ, float velocityY, double deltaTime)
 {
     if (!robotCore)
         return;
 
+    const float speedMagnitude = sqrtf(velocityX * velocityX + velocityZ * velocityZ + velocityY * velocityY );
     const float dt = (float)deltaTime;
     const float desiredTargetX = robotCore->x;
     const float desiredTargetY = 10.0f + robotCore->y;
     const float desiredTargetZ = robotCore->z + 10.0f;
-    const float desiredDist = fminf(fmaxf(-30.0f + 1.0f * fabsf(velocityZ), 8.0f), 16.0f);
+    const float desiredDist = fminf(fmaxf(-30.0f + 1.0f * fabsf(speedMagnitude), 8.0f), 16.0f);
     const float desiredYaw = 1.57f - velocityX * 0.01f;
     const float basePitch = -0.10f;
     const float altitudeInfluence = 0.007f;
     const float minPitch = -1.0f;
     const float maxPitch = 0.0f;
+    
     float altitudeDelta = fmaxf(robotCore->y - 10.0f, 0.0f);
     float desiredPitch = basePitch - altitudeInfluence * altitudeDelta;
     if (desiredPitch < minPitch) desiredPitch = minPitch;

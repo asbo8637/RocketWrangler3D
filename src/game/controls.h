@@ -10,6 +10,7 @@ typedef struct {
     float cameraYaw;    // -1 to 1 (left/right rotation)
     float cameraPitch;  // -1 to 1 (down/up rotation)
     float cameraZoom;   // -1 to 1 (out/in)
+    float restart;      // 1 if restart key is pressed, 0 otherwise
 } ControlState;
 
 /* Global control state accessible to engine */

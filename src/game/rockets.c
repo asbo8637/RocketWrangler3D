@@ -10,8 +10,7 @@ static size_t sCapacity = 0u;
 
 // Capsule approximation of rocket body (matches drawCylinder radius 5, height 10)
 static const float ROCKET_RADIUS = 0.8f;
-// static const float ROCKET_HALF_HEIGHT = 5.0f;
-// static const float DEG2RAD = 0.017453292519943295f;
+static const float ROCKET_HEIGHT = 6.0f;
 
 static int ensure_capacity(size_t desired)
 {
@@ -110,25 +109,17 @@ Rocket *rockets_findCollision(float px, float py, float pz, float playerRadius)
         if (!rocket || !rocket->shell)
             continue;
 
-        const float combinedRadius = playerRadius + ROCKET_RADIUS;
-        const float combinedRadiusSq = combinedRadius * combinedRadius;
+        if(px + playerRadius < rocket->shell->x - ROCKET_RADIUS ||
+           px - playerRadius > rocket->shell->x + ROCKET_RADIUS ||
+           py + playerRadius < rocket->shell->y - ROCKET_RADIUS ||
+           py - playerRadius > rocket->shell->y + ROCKET_RADIUS ||
+           pz + playerRadius < rocket->shell->z ||
+           pz - playerRadius > rocket->shell->z + ROCKET_HEIGHT)
+        {
+            continue;
+        }
 
-        // const float rx = rocket->shell->rotX * DEG2RAD;
-        // const float ry = rocket->shell->rotY * DEG2RAD;
-        // const float rz = rocket->shell->rotZ * DEG2RAD;
-
-        // Calculate distance squared between player position and rocket position
-        const float dx = px - rocket->shell->x;
-        const float dy = py - rocket->shell->y;
-        const float dz = pz - rocket->shell->z;
-        float distanceSquared = dx * dx + dy * dy + dz * dz;
-
-        if (distanceSquared < combinedRadiusSq)
-            return rocket;
-
-        // Additional spheres can be added here for more accurate collision
-        //TODO
-        
+        return rocket;
     }
 
     return NULL;

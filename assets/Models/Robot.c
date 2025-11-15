@@ -3,8 +3,11 @@
 #include <GL/glut.h>
 #include "./Robot_positions/poses.h"
 #include "Rocket.h"
+#include "../../src/game/controls.h"
 #include <stdlib.h>
 #include <math.h>
+
+static const float poseDuration = 1.5f; // seconds between random in-air poses
 
 // Create a new robot instance
 Robot *robot_create(void)
@@ -31,6 +34,8 @@ Robot *robot_create(void)
     robot->spinTime = 0.0f;
     robot->lastCrunchAngle = 1e9f;
     robot->lastRollAngle = 1e9f;
+
+    robot->animateStyle = 0;
 
     return robot;
 }
@@ -190,8 +195,11 @@ void robot_setStance(Robot *robot,
 
 // In-air animation
 // Random poses with some sick flips
-void robot_inAirAnimation(Robot *robot, float deltaTime, float spinSpeed, float poseDuration, float crunchAngle, float rollAngle)
+void robot_inAirAnimation(Robot *robot, float deltaTime)
 {
+    float crunchAngle = fminf(30.0f + controlState.moveZ * 60.0f, 60.0f); // Crunch more when moving up
+    float spinSpeed = 500.0f + (250.0f * controlState.moveZ);
+    float rollAngle = controlState.moveX * 45.0f;
     if (!robot)
         return;
 
@@ -238,9 +246,43 @@ void robot_riding_animation(Robot *robot, float deltaTime)
 {
     if (!robot)
         return;
+    
+    //Elevate robot lower torso on top
+    robot->lowerTorso->x = 0.0f;
+    robot->lowerTorso->y = 1.2f;
+    robot->lowerTorso->z = 0.0f;
+
+    robot->lowerTorso->animatingRot = 5;
 
     // Animate the robot in a riding pose
     robot_ridepose(robot);
+}
+
+void robot_surfing_animation(Robot *robot, float deltaTime)
+{
+    if (!robot)
+        return;
+
+    robot->lowerTorso->x = -0.3f;
+    robot->lowerTorso->y = 2.0f;
+    robot->lowerTorso->z = 0.0f;
+
+    robot->lowerTorso->rotY = -90.0f;
+
+    robot_surfpose(robot);
+}
+
+void animate_robot(Robot *robot, float deltaTime)
+{
+    if (robot->animateStyle == 0){
+        robot_inAirAnimation(robot, deltaTime);
+    }
+    else if (robot->animateStyle == 1){
+        robot_riding_animation(robot, deltaTime);
+    }
+    else if (robot->animateStyle == 2){
+        robot_surfing_animation(robot, deltaTime);
+    }
 }
 
 // Draw the robot
@@ -268,7 +310,7 @@ void robot_draw(const Robot *robot)
     // Draw head (sphere)
     glPushMatrix();
     joint_applyTransform(robot->head);
-    drawSphere(0.3f, 16, 16);
+    drawCurvedHoop(0.2f, 0.3f, 0.1f, 180.0f, 8, 16);
     glPopMatrix();
 
     // Draw RUpperArm (box with offset to center along length)
@@ -332,6 +374,10 @@ void let_go_rocket(Robot *robot){
     robot->lowerTorso->x = 0.0f;
     robot->lowerTorso->y = 0.0f;
     robot->lowerTorso->z = 0.0f;
+
+    robot->core->rotZ *= 0.5f;
+    robot->core->rotY *= 0.5f;
+    robot->core->rotX = 0.0f;
 }
 
 void grab_rocket(Robot *robot, Rocket *rocket)
@@ -339,19 +385,12 @@ void grab_rocket(Robot *robot, Rocket *rocket)
     if (!robot || !rocket)
         return;
 
-    robot->core->x = rocket->shell->x;
-    robot->core->y = rocket->shell->y;
-    robot->core->z = rocket->shell->z;
 
-    // Position rocket on his ass
+    float differenceZ = rocket->shell->z - robot->core->z;
+    // Position rocket relative to robot without changing world-space landing spot
     rocket->shell->x = 0.0f;
     rocket->shell->y = 0.0f;
-    rocket->shell->z = -3.0f;
-    
-    //Elevate robot lower torso on top
-    robot->lowerTorso->x = 0.0f;
-    robot->lowerTorso->y = 1.2f;
-    robot->lowerTorso->z = 0.0f;
+    rocket->shell->z = fminf(fmaxf(differenceZ, -4.5f), -0.5f);
 
     robot->lowerTorso->rotX = 0.0f;
     robot->lowerTorso->rotY = 0.0f;
@@ -360,6 +399,8 @@ void grab_rocket(Robot *robot, Rocket *rocket)
     robot->core->rotY = 0.0f;
     robot->core->rotX = 0.0f;
     robot->core->rotZ = 0.0f;
+
+    
 
     // Make rocket a child of robot
     joint_addChild(robot->core, rocket->shell);

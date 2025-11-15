@@ -14,4 +14,7 @@ void robot_randompose(Robot *robot, float crunchFactor, float rollAngle);
 // Riding stance
 void robot_ridepose(Robot *robot);
 
+// Surfing stance
+void robot_surfpose(Robot *robot);
+
 #endif // ROBOT_POSES_H

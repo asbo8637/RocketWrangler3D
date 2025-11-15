@@ -19,6 +19,6 @@ void zoomIn(float deltaTime);
 void zoomOut(float deltaTime);
 
 /* Automatic camera update driven by game state */
-void camera_update(const struct Joint *robotCore, float velocityX, float velocityZ, double deltaTime);
+void camera_update(const struct Joint *robotCore, float velocityX, float velocityZ, float velocityY, double deltaTime);
 
 #endif /* CAMERA_H */

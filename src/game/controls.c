@@ -57,6 +57,7 @@ void processInputs(double deltaTime)
     controlState.cameraPitch = 0.0f;
     controlState.cameraZoom = 0.0f;
     controlState.jump = 0.0f;
+    controlState.restart = 0.0f;
 
     // Process movement keys
     if ((normalKeys['w'] || normalKeys['W']) && !(normalKeys['s'] || normalKeys['S']))
@@ -77,6 +78,10 @@ void processInputs(double deltaTime)
         controlState.moveX = 1.0f;
     }
 
+    if( normalKeys['f'] || normalKeys['F']){
+        glutFullScreen();
+    }
+
     /* Zoom */
     if (normalKeys['+'] || normalKeys['='])
     {
@@ -92,6 +97,10 @@ void processInputs(double deltaTime)
     if (normalKeys[' '])
     {
         controlState.jump = 1.0f;
+    }
+
+    if( normalKeys['r'] || normalKeys['R']){
+        controlState.restart = 1.0f;
     }
 
     /* Camera rotation */

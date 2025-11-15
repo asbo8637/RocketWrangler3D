@@ -20,7 +20,7 @@ static GLint win = 0;
 static double lastTimeSec = 0.0;                  // Last frame timestamp (seconds)
 static double lastFrameDelta = 0.0;               // Duration of the previous frame (seconds)
 
-// High-resolution clock in seconds (POSIX)
+
 static double now_seconds(void)
 {
     struct timespec ts;
@@ -72,6 +72,7 @@ int main(int argc, char **argv)
     glutInitWindowPosition(50, 50);
     glutInitWindowSize(1800, 1200);
     win = glutCreateWindow("RocketWrangler - 3D");
+    /* Enable full screen */
 
     /* Initialize all subsystems */
     initRenderer();

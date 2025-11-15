@@ -25,6 +25,8 @@ typedef struct Robot
     float spinTime;
     float lastCrunchAngle;
     float lastRollAngle;
+
+    int animateStyle;
 } Robot;
 
 // Create a new robot instance
@@ -59,10 +61,13 @@ void robot_setStance(Robot *robot,
 // In-air animation: random poses with continuous spinning
 // spinSpeed: degrees per second for torso rotation
 // poseDuration: seconds between random pose changes
-void robot_inAirAnimation(Robot *robot, float deltaTime, float spinSpeed, float poseDuration, float crunchAngle, float rollAngle);
+void robot_inAirAnimation(Robot *robot, float deltaTime);
 
-// Riding animation
+// Riding animations
 void robot_riding_animation(Robot *robot, float deltaTime);
+void surfing_ride_animation(Robot *robot, float deltaTime);
+
+void animate_robot(Robot *robot, float deltaTime);
 
 void grab_rocket(Robot *robot, Rocket *rocket);
 void let_go_rocket(Robot *robot);
