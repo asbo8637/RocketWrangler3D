@@ -310,7 +310,7 @@ void robot_draw(const Robot *robot)
     // Draw head (sphere)
     glPushMatrix();
     joint_applyTransform(robot->head);
-    drawCurvedHoop(0.2f, 0.3f, 0.1f, 180.0f, 8, 16);
+    drawPrism(0.5f, 0.5f, 0.5f);
     glPopMatrix();
 
     // Draw RUpperArm (box with offset to center along length)
