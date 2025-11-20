@@ -52,7 +52,8 @@ void initRenderer(void)
 {
     glEnable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
-    glClearColor(0.25f, 0.65f, 0.95f, 1.0f);
+    // brighter, less gloomy sky tone 
+    glClearColor(0.35f, 0.72f, 0.88f, 1.0f);
 
 #ifdef USEGLEW
     if (glewInit() != GLEW_OK) { fprintf(stderr, "Error initializing GLEW\n"); exit(1); }
@@ -92,7 +93,7 @@ void displayDebugInfo(void)
 
     // Show bounce counter near the top-left corner.
     glWindowPos2i(5, winH - 30);
-    Print("Bounces: %d / 1", engine_getBounceCount());
+    Print("Score: %d  Bounces: %d / 1", engine_getScore(), engine_getBounceCount());
     
     // Display FPS at top-right corner
     glWindowPos2i(winW - 150, winH - 30);

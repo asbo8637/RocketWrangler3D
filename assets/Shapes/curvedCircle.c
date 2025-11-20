@@ -1,12 +1,13 @@
 #ifdef _WIN32
 #include <windows.h>
 #include <GL/glut.h>
-#include <math.h>
 #elif defined(__APPLE__)
 #include <GLUT/glut.h>
 #else
 #include <GL/glut.h>
 #endif
+#include <math.h>
+#include "curvedCircle.h"
 
 typedef struct { float x,y,z; } Vec3;
 

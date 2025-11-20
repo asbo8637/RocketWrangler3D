@@ -20,6 +20,11 @@ static unsigned char specialKeys[MAX_SPECIAL_KEYS] = {0};
 
 /* Other global state */
 static int windowId = 0;
+static int isFullScreen = 0;
+static int initWindowX = 50;
+static int initWindowY = 50;
+static int initWindowW = 800;
+static int initWindowH = 600;
 
 /* Global control state accessible to engine */
 ControlState controlState = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
@@ -85,8 +90,26 @@ void processInputs(double deltaTime)
         controlState.moveX = 1.0f;
     }
 
-    if( normalKeys['f'] || normalKeys['F']){
-        glutFullScreen();
+    if (normalKeys['f'] || normalKeys['F'])
+    {
+        if (!isFullScreen)
+        {
+            // Enter fullscreen; remember current size/pos if not already saved
+            initWindowX = glutGet(GLUT_WINDOW_X);
+            initWindowY = glutGet(GLUT_WINDOW_Y);
+            initWindowW = glutGet(GLUT_WINDOW_WIDTH);
+            initWindowH = glutGet(GLUT_WINDOW_HEIGHT);
+            glutFullScreen();
+            isFullScreen = 1;
+        }
+        else
+        {
+            // Leave fullscreen by restoring previous size/position
+            glutReshapeWindow(initWindowW, initWindowH);
+            glutPositionWindow(initWindowX, initWindowY);
+            isFullScreen = 0;
+        }
+        normalKeys['f'] = normalKeys['F'] = 0; // consume key
     }
 
     /* Zoom */
@@ -157,6 +180,12 @@ void initControls(int winId)
     /* Reset all key states */
     memset(normalKeys, 0, sizeof(normalKeys));
     memset(specialKeys, 0, sizeof(specialKeys));
+
+    // Capture initial window metrics for fullscreen toggle restore
+    initWindowX = glutGet(GLUT_WINDOW_X);
+    initWindowY = glutGet(GLUT_WINDOW_Y);
+    initWindowW = glutGet(GLUT_WINDOW_WIDTH);
+    initWindowH = glutGet(GLUT_WINDOW_HEIGHT);
 
     /* Set up GLUT callbacks */
     glutKeyboardFunc(handleKeyboard);

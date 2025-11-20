@@ -6,5 +6,6 @@
 #include "cylinder.h"
 #include "sphere.h"
 #include "prism.h"
+#include "curvedCircle.h"
 
 #endif /* MASTER_H */

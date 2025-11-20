@@ -21,7 +21,7 @@ static float lightPos[4] = {0.f, 10000.f, 0.f, 0.f}; // Just like way up there l
 static float lightAmb[4] = {0.15f, 0.15f, 0.15f, 1.f};
 static float lightDif[4] = {1.0f, 1.0f, 1.0f, 1.f};
 static float lightSpe[4] = {1.00f, 1.00f, 1.00f, 1.f};
-static float groundSeed = -1.f;
+static float groundSeed = -1.0f;
 
 // Function to set up basic lighting
 void setupLighting(void)
@@ -46,47 +46,40 @@ static float hashNoise(float x, float z, float seed)
     return v - floorf(v);
 }
 
+void setSeed(){
+    groundSeed = (float)time(NULL);
+}
+
 static float groundHeight(float x, float z, float t)
 {
     // Blend of layered sine noise plus hashed noise for nonrepeating bumps
     float h = 0.0f;
-    h += sinf(0.06f * x + 0.014f * z + t * 0.33f);
-    h += sinf(0.041f * z - 0.018f * x + t * 0.27f);
-    h += sinf(0.019f * (x + z) + t * 0.19f);
-    h += sinf(0.11f * x + 0.08f * z + t * 0.41f) * 0.7f;
-    h *= 5.0f;
 
-    float n1 = hashNoise(x * 0.7f, z * 0.9f, t * 37.2f);
-    float n2 = hashNoise(x * 3.5f, z * 2.8f, t * 123.456f);
-    float n3 = hashNoise(x * 0.12f, z * 0.14f, t * 11.7f);
-    h += (n1 - 0.5f) * 3.5f;
-    h += (n2 - 0.5f) * 2.0f;
-    h += (n3 - 0.5f) * 4.0f;
-    h *= 0.8f;
-
-    /* Raise terrain sharply outside the central valley (|x| > 100) */
     float ax = fabsf(x);
     if (ax > 100.0f)
     {
-        float rise = (ax - 100.0f) * 0.03f;   // climb rate outside center
-        h += rise * rise * 100.0f;            // squared for steep walls
+        h = (ax - 100.0f) * 3.5f;   // climb rate outside center
     }
 
     return h-10.0f;
 }
 
-static void groundColor(float h, float x, float z, float t)
+static void groundColor(float h, float x, float z, float seed)
 {
-    // Map height to vibrant green -> rich brown, with a little noise
-    float green[3] = {0.18f, 0.68f, 0.16f};
-    float brown[3] = {0.46f, 0.30f, 0.12f};
-    float r = brown[0] * (1 - t) + green[0] * t;
-    float g = brown[1] * (1 - t) + green[1] * t;
-    float b = brown[2] * (1 - t) + green[2] * t;
-    float jitter = hashNoise(x * 0.2f, z * 0.3f, t * 7.3f) * 0.05f;
-    r += jitter * 0.4f;
-    g += jitter * 0.15f;
-    b += jitter * -0.2f;
+    // Green to brown colors
+    float lerp = fminf(fmaxf(0.55f + h * 0.012f, 0.0f), 1.0f);
+    float green[3] = {0.18f, 0.63f, 0.13f};
+    float brown[3] = {0.40f, 0.25f, 0.10f};
+    float r = green[0] * (1 - lerp) + brown[0] * lerp;
+    float g = green[1] * (1 - lerp) + brown[1] * lerp;
+    float b = green[2] * (1 - lerp) + brown[2] * lerp;
+    // Tiny spatial jitter snapped to coarse grid
+    float jx = floorf(x * 0.05f);
+    float jz = floorf(z * 0.05f);
+    float jitter = 0.5f * (hashNoise(jx, jz, seed) - 0.5f);
+    r += jitter * 0.20f;
+    g += jitter * 0.08f;
+    b += jitter * -0.10f;
     if (r < 0.f) r = 0.f; 
     if (r > 1.f) r = 1.f;
     if (g < 0.f) g = 0.f; 
@@ -106,12 +99,6 @@ void drawScene(float camZ, float camX)
     lightPos[0] = camX;
     lightPos[2] = camZ;
     setupLighting();
-
-    // Per-run seed for chaotic ground
-    if (groundSeed < 0.f)
-        groundSeed = (float)time(NULL);
-
-    float tPhase = groundSeed + (float)glutGet(GLUT_ELAPSED_TIME) * 0.0005f;
 
     // Bumpy ground plane
     glPushMatrix();
@@ -142,7 +129,7 @@ void drawScene(float camZ, float camX)
             for (int xi = 0; xi < countX; ++xi)
             {
                 float x = startX + xi * cellSize;
-                heights[zi * countX + xi] = groundHeight(x, z, tPhase);
+                heights[zi * countX + xi] = groundHeight(x, z, groundSeed);
             }
         }
 
@@ -163,23 +150,23 @@ void drawScene(float camZ, float camX)
 
                 if (((xi + zi) & 1) == 0)
                 {
-                    groundColor(h00, x0, z0, tPhase); glVertex3f(x0, yGround + h00, z0);
-                    groundColor(h10, x1, z0, tPhase); glVertex3f(x1, yGround + h10, z0);
-                    groundColor(h11, x1, z1, tPhase); glVertex3f(x1, yGround + h11, z1);
+                    groundColor(h00, x0, z0, groundSeed); glVertex3f(x0, yGround + h00, z0);
+                    groundColor(h10, x1, z0, groundSeed); glVertex3f(x1, yGround + h10, z0);
+                    groundColor(h11, x1, z1, groundSeed); glVertex3f(x1, yGround + h11, z1);
 
-                    groundColor(h00, x0, z0, tPhase); glVertex3f(x0, yGround + h00, z0);
-                    groundColor(h11, x1, z1, tPhase); glVertex3f(x1, yGround + h11, z1);
-                    groundColor(h01, x0, z1, tPhase); glVertex3f(x0, yGround + h01, z1);
+                    groundColor(h00, x0, z0, groundSeed); glVertex3f(x0, yGround + h00, z0);
+                    groundColor(h11, x1, z1, groundSeed); glVertex3f(x1, yGround + h11, z1);
+                    groundColor(h01, x0, z1, groundSeed); glVertex3f(x0, yGround + h01, z1);
                 }
                 else
                 {
-                    groundColor(h00, x0, z0, tPhase); glVertex3f(x0, yGround + h00, z0);
-                    groundColor(h10, x1, z0, tPhase); glVertex3f(x1, yGround + h10, z0);
-                    groundColor(h01, x0, z1, tPhase); glVertex3f(x0, yGround + h01, z1);
+                    groundColor(h00, x0, z0, groundSeed); glVertex3f(x0, yGround + h00, z0);
+                    groundColor(h10, x1, z0, groundSeed); glVertex3f(x1, yGround + h10, z0);
+                    groundColor(h01, x0, z1, groundSeed); glVertex3f(x0, yGround + h01, z1);
 
-                    groundColor(h10, x1, z0, tPhase); glVertex3f(x1, yGround + h10, z0);
-                    groundColor(h11, x1, z1, tPhase); glVertex3f(x1, yGround + h11, z1);
-                    groundColor(h01, x0, z1, tPhase); glVertex3f(x0, yGround + h01, z1);
+                    groundColor(h10, x1, z0, groundSeed); glVertex3f(x1, yGround + h10, z0);
+                    groundColor(h11, x1, z1, groundSeed); glVertex3f(x1, yGround + h11, z1);
+                    groundColor(h01, x0, z1, groundSeed); glVertex3f(x0, yGround + h01, z1);
                 }
             }
             glEnd();

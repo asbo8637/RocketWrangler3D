@@ -32,6 +32,8 @@ OBJS = $(patsubst %.c,$(OBJDIR)/%.o,$(SRCS))
 #  Compile and link
 $(EXEC): $(OBJS)
 	$(CC) $(CFLG) -o $@ $(OBJS) $(LIBS) $(LDFLAGS)
+	@$(MKDIR) dist
+	cp -f $(EXEC) dist/$(EXEC)
 
 #  Generic rule for compiling objects into $(OBJDIR)
 #  Create the output directory with Unix mkdir -p

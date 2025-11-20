@@ -41,28 +41,28 @@ static void idle(void)
     double currentTime = now_seconds();
     double deltaTime = currentTime - lastTimeSec;
 
-    /* Cap delta time to avoid large time steps */
+    // Cap delta time to avoid large time steps
     if (deltaTime > 0.1)
         deltaTime = 0.1;
     if (deltaTime < 0.0)
         deltaTime = 0.0;
 
 
-    /* Update last time */
+    // Update last time
     lastTimeSec = currentTime;
 
 
-    /* Update FPS counter */
+    // Update FPS counter
     updateFPS(deltaTime);
 
-    /* Process inputs and update game state with accumulated time */
+    // Process inputs and update game state with accumulated time
     processInputs(deltaTime);
     updateEngine(deltaTime);
 
-    /* Store delta for the renderer */
+    // Store delta for the renderer
     lastFrameDelta = deltaTime;
 
-    /* Trigger a new frame */
+    // Trigger a new frame
     glutPostRedisplay();
 }
 
@@ -73,19 +73,18 @@ int main(int argc, char **argv)
     glutInitWindowPosition(50, 50);
     glutInitWindowSize(1800, 1200);
     win = glutCreateWindow("RocketWrangler - 3D");
-    /* Enable full screen */
 
-    /* Initialize all subsystems */
+    // Initialize all subsystems
     initRenderer();
     initControls(win);
     initEngine();
     initScene(); // Initialize scene objects (robot, etc.)
 
-    /* Initialize timing */
+    // Initialize timing
     lastTimeSec = now_seconds();
     lastFrameDelta = 0.0;
 
-    /* Set up GLUT callbacks */
+    // Set up GLUT callbacks
     glutDisplayFunc(display);
     glutReshapeFunc(handleReshape);
     glutKeyboardFunc(handleKeyboard);

@@ -7,4 +7,6 @@ void setupLighting(void);
 // Main scene drawing function
 void drawScene(float camZ, float camX);
 
+void setSeed(void);
+
 #endif // DRAWSCENE_H

@@ -327,6 +327,7 @@ void robot_draw(const Robot *robot)
     glPushMatrix();
     joint_applyTransform(robot->head);
     drawSphere(0.3f, 16, 16);
+    drawCurvedCircle(0.5f, 0.05f, 16);
     glPopMatrix();
 
     // Draw RUpperArm

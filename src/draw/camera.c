@@ -64,7 +64,7 @@ void camera_update(const Joint *robotCore, float velocityX, float velocityZ, flo
     const float desiredTargetX = robotCore->x;
     const float desiredTargetY = 10.0f + robotCore->y;
     const float desiredTargetZ = robotCore->z + 10.0f;
-    const float desiredDist = fminf(fmaxf(-30.0f + 1.0f * fabsf(speedMagnitude), 8.0f), 16.0f);
+    const float desiredDist = fminf(fmaxf(-30.0f + 0.3f * fabsf(speedMagnitude), 8.0f), 16.0f);
     const float desiredYaw = 1.57f - velocityX * 0.01f;
     const float basePitch = -0.08f;
     const float altitudeInfluence = 0.004f;
@@ -84,8 +84,8 @@ void camera_update(const Joint *robotCore, float velocityX, float velocityZ, flo
     tpsTargetY += (desiredTargetY - tpsTargetY) * posAlpha;
     tpsTargetZ += (desiredTargetZ - tpsTargetZ) * posAlpha;
     tpsDist += (desiredDist - tpsDist) * distAlpha;
-    tpsYaw += (desiredYaw - tpsYaw) * yawAlpha;
     tpsDist = fminf(fmaxf(tpsDist, 10.0f), 22.0f);
+    tpsYaw += (desiredYaw - tpsYaw) * yawAlpha;
     tpsPitch = desiredPitch;
 }
 
