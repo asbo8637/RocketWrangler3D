@@ -3,7 +3,10 @@
 // POSIX timing headers for Linux/WSL
 #include <time.h>
 
-#ifdef __APPLE__
+#ifdef _WIN32
+#include <windows.h>
+#include <GL/glut.h>
+#elif defined(__APPLE__)
 #include <GLUT/glut.h>
 #else
 #include <GL/glut.h>
@@ -30,9 +33,7 @@ static double now_seconds(void)
 
 static void display(void)
 {
-    /* This is called when glutPostRedisplay() is triggered from idle() */
-    /* Just render - no timing updates here */
-    render(lastFrameDelta);
+    render();
 }
 
 static void idle(void)

@@ -7,6 +7,7 @@
 static Rocket **sRockets = NULL;
 static size_t sCount = 0u;
 static size_t sCapacity = 0u;
+static int maxRockets = 20;
 
 // Capsule approximation of rocket body (matches drawCylinder radius 5, height 10)
 static const float ROCKET_RADIUS = 0.8f;
@@ -55,6 +56,8 @@ void rockets_shutdown(void)
 
 Rocket *rockets_spawn(float x, float y, float z, float vx, float vy, float vz)
 {
+    if (sCount >= maxRockets)
+        return NULL;
     if (!ensure_capacity(sCount + 1u))
         return NULL;
 

@@ -1,18 +1,25 @@
+#ifdef _WIN32
+#include <windows.h>
 #include <GL/glut.h>
+#elif defined(__APPLE__)
+#include <GLUT/glut.h>
+#else
+#include <GL/glut.h>
+#endif
 #include <GL/glu.h>
 #include <math.h>
 #include "camera.h"
 #include "../../assets/Models/joint_class.h"
 
-/* Camera variables */
+// Camera variables
 float tpsTargetX = 0.f, tpsTargetY = 2.0f, tpsTargetZ = -20.f;
 float tpsYaw  = 1.57f;     // radians left/right orbit 
 float tpsPitch = -0.35f;   // radians up/down (clamped)
 float tpsDist  = 25.0f;   // distance from target
 
-/* Camera constants */
-static const float baseTurnSpeed = 2.0f;    /* Radians per second */
-static const float baseZoomSpeed = 20.0f;   /* Units per second */
+// Camera constants 
+static const float baseTurnSpeed = 2.0f;    // Radians per second
+static const float baseZoomSpeed = 20.0f;   // Units per second
 static const float tpsMinDist = 5.0f;
 static const float tpsMaxDist = 80.0f;
 static const float tpsMinPitch = -1.2f;
@@ -21,7 +28,7 @@ static const float CAMERA_POS_SMOOTH_RATE = 10.0f;
 static const float CAMERA_YAW_SMOOTH_RATE = 8.0f;
 static const float CAMERA_DIST_SMOOTH_RATE = 6.0f;
 
-/* Helper function for camera direction */
+// Helper function for camera direction
 static void tpsForward(float yaw, float pitch, float *fx, float *fy, float *fz)
 {
     float cy = cosf(yaw), sy = sinf(yaw);
@@ -31,13 +38,13 @@ static void tpsForward(float yaw, float pitch, float *fx, float *fy, float *fz)
     if (fz) *fz = -sy * cp;
 }
 
-/* Apply the camera view transformation */
+// Apply the camera view transformation
 void applyTPSView(void)
 {
     float fx, fy, fz;
     tpsForward(tpsYaw, tpsPitch, &fx, &fy, &fz);
     float camX_ = tpsTargetX - tpsDist * fx;
-    float camY_ = tpsTargetY - tpsDist * fy + 1.5f; /* small lift */
+    float camY_ = tpsTargetY - tpsDist * fy + 1.5f; // small lift
     float camZ_ = tpsTargetZ - tpsDist * fz;
 
     gluLookAt(
@@ -59,8 +66,8 @@ void camera_update(const Joint *robotCore, float velocityX, float velocityZ, flo
     const float desiredTargetZ = robotCore->z + 10.0f;
     const float desiredDist = fminf(fmaxf(-30.0f + 1.0f * fabsf(speedMagnitude), 8.0f), 16.0f);
     const float desiredYaw = 1.57f - velocityX * 0.01f;
-    const float basePitch = -0.10f;
-    const float altitudeInfluence = 0.007f;
+    const float basePitch = -0.08f;
+    const float altitudeInfluence = 0.004f;
     const float minPitch = -1.0f;
     const float maxPitch = 0.0f;
     
@@ -82,7 +89,7 @@ void camera_update(const Joint *robotCore, float velocityX, float velocityZ, flo
     tpsPitch = desiredPitch;
 }
 
-/* Camera rotation and zoom */
+// Camera rotation and zoom
 void turnLeft(float deltaTime) {
     tpsYaw += baseTurnSpeed * deltaTime;
 }

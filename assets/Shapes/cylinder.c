@@ -1,4 +1,11 @@
+#ifdef _WIN32
+#include <windows.h>
 #include <GL/glut.h>
+#elif defined(__APPLE__)
+#include <GLUT/glut.h>
+#else
+#include <GL/glut.h>
+#endif
 #include <math.h>
 #include "cylinder.h"
 
@@ -11,10 +18,10 @@ void drawCylinder(float radius, float height, int segments)
     float angle;
     int i;
 
-    /* Draw the top circle */
+    // Draw the top circle
     glBegin(GL_TRIANGLE_FAN);
     glNormal3f(0.0f, 1.0f, 0.0f);
-    glVertex3f(0.0f, height, 0.0f);  /* Center of the top */
+    glVertex3f(0.0f, height, 0.0f); 
     
     for(i = segments; i >= 0; i--) {
         angle = 2.0f * M_PI * i / segments;
@@ -22,10 +29,10 @@ void drawCylinder(float radius, float height, int segments)
     }
     glEnd();
 
-    /* Draw the bottom circle */
+    // Draw the bottom circle
     glBegin(GL_TRIANGLE_FAN);
     glNormal3f(0.0f, -1.0f, 0.0f);
-    glVertex3f(0.0f, 0.0f, 0.0f);  /* Center of the bottom */
+    glVertex3f(0.0f, 0.0f, 0.0f);  // Center of the bottom 
     
     for(i = 0; i <= segments; i++) {
         angle = 2.0f * M_PI * i / segments;
@@ -33,19 +40,18 @@ void drawCylinder(float radius, float height, int segments)
     }
     glEnd();
 
-    /* Draw the cylinder body */
+    // Draw the cylinder body
     glBegin(GL_QUAD_STRIP);
     for(i = 0; i <= segments; i++) {
         angle = 2.0f * M_PI * i / segments;
         float x = cosf(angle);
         float z = sinf(angle);
         
-        /* Normal for smooth shading */
         glNormal3f(x, 0.0f, z);
         
-        /* Top vertex */
+        // Top vertex
         glVertex3f(radius * x, height, radius * z);
-        /* Bottom vertex */
+        // Bottom vertex
         glVertex3f(radius * x, 0.0f, radius * z);
     }
     glEnd();

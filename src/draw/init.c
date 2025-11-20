@@ -6,13 +6,15 @@
 
 // Ground texture (0 means not available)
 unsigned int groundTexture = 0u;
+unsigned int clayTexture = 0u;
 Robot *robot = NULL;
 
 // Initialize all scene objects once at startup
 void initScene(void)
 {
     // Load ground texture (seamless, tiling)
-    groundTexture = loadTexture2D("assets/Textures/close-up-mixture-clay-powder.jpg");
+    groundTexture = loadTexture2D("assets/Textures/grass-texture.png");
+    clayTexture = loadTexture2D("assets/Textures/close-up-mixture-clay-powder.jpg");
 }
 
 // Cleanup scene objects on shutdown

@@ -1,7 +1,7 @@
 #ifndef CONE_H
 #define CONE_H
 
-/* Draw a cone with the given parameters */
+// Draw a cone
 void drawCone(float baseRadius, float height, int segments);
 
-#endif /* CONE_H */
+#endif 

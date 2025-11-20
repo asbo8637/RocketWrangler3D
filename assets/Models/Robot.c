@@ -1,13 +1,26 @@
 #include "Robot.h"
 #include "../Shapes/master.h"
+#ifdef _WIN32
+#include <windows.h>
 #include <GL/glut.h>
+#elif defined(__APPLE__)
+#include <GLUT/glut.h>
+#else
+#include <GL/glut.h>
+#endif
 #include "./Robot_positions/poses.h"
 #include "Rocket.h"
 #include "../../src/game/controls.h"
 #include <stdlib.h>
 #include <math.h>
 
-static const float poseDuration = 1.5f; // seconds between random in-air poses
+static const float poseDuration = 0.2f; // seconds between random in-air poses
+
+static float randomFloat(float min, float max)
+{
+    float scale = rand() / (float)RAND_MAX; // 0.0 to 1.0
+    return min + scale * (max - min);
+}
 
 // Create a new robot instance
 Robot *robot_create(void)
@@ -99,7 +112,7 @@ void robot_init(Robot *robot, float x, float y, float z)
     robot->LForearm->y = -0.5f;
 
     // Right thigh
-    robot->RThigh->x = 0.3f;
+    robot->RThigh->x = 0.25f;
     robot->RThigh->y = -0.25f;
     robot->RThigh->z = 0.0f;
 
@@ -107,7 +120,7 @@ void robot_init(Robot *robot, float x, float y, float z)
     robot->RCalf->y = -0.6f;
 
     // Left thigh
-    robot->LThigh->x = -0.3f;
+    robot->LThigh->x = -0.25f;
     robot->LThigh->y = -0.25f;
     robot->LThigh->z = 0.0f;
 
@@ -195,7 +208,7 @@ void robot_setStance(Robot *robot,
 
 // In-air animation
 // Random poses with some sick flips
-void robot_inAirAnimation(Robot *robot, float deltaTime)
+static void robot_inAirAnimation(Robot *robot, float deltaTime)
 {
     float crunchAngle = fminf(30.0f + controlState.moveZ * 60.0f, 60.0f); // Crunch more when moving up
     float spinSpeed = 500.0f + (250.0f * controlState.moveZ);
@@ -242,7 +255,7 @@ void robot_inAirAnimation(Robot *robot, float deltaTime)
 }
 
 // Riding animation
-void robot_riding_animation(Robot *robot, float deltaTime)
+static void robot_riding_animation(Robot *robot, float deltaTime)
 {
     if (!robot)
         return;
@@ -258,13 +271,13 @@ void robot_riding_animation(Robot *robot, float deltaTime)
     robot_ridepose(robot);
 }
 
-void robot_surfing_animation(Robot *robot, float deltaTime)
+static void robot_surfing_animation(Robot *robot, float deltaTime)
 {
     if (!robot)
         return;
 
     robot->lowerTorso->x = -0.3f;
-    robot->lowerTorso->y = 2.0f;
+    robot->lowerTorso->y = 2.3f;
     robot->lowerTorso->z = 0.0f;
 
     robot->lowerTorso->rotY = -90.0f;
@@ -291,6 +304,9 @@ void robot_draw(const Robot *robot)
     if (!robot)
         return;
 
+    const float armRadius = 0.10f;
+    const float legRadius = 0.13f;
+
     float robotColor[4] = {0.7f, 0.7f, 0.9f, 1.0f};
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, robotColor);
 
@@ -307,66 +323,74 @@ void robot_draw(const Robot *robot)
     drawBox(0.6f, 0.45f, 0.3f);
     glPopMatrix();
 
-    // Draw head (sphere)
+    // Draw head 
     glPushMatrix();
     joint_applyTransform(robot->head);
-    drawPrism(0.5f, 0.5f, 0.5f);
+    drawSphere(0.3f, 16, 16);
     glPopMatrix();
 
-    // Draw RUpperArm (box with offset to center along length)
+    // Draw RUpperArm
     glPushMatrix();
     joint_applyTransform(robot->RUpperArm);
-    glTranslatef(0.0f, -0.25f, 0.0f); // offset half length to draw centered on pivot
-    drawBox(0.15f, 0.5f, 0.15f);
+    glTranslatef(0.0f, -0.5f, 0.0f); // top at joint, cylinder extends downwards
+    drawCylinder(armRadius, 0.5f, 18);
     glPopMatrix();
 
-    // Draw RForearm (box with offset)
+    // Draw RForearm
     glPushMatrix();
     joint_applyTransform(robot->RForearm);
-    glTranslatef(0.0f, -0.25f, 0.0f);
-    drawBox(0.15f, 0.5f, 0.15f);
+    glTranslatef(0.0f, -0.5f, 0.0f);
+    drawCylinder(armRadius, 0.5f, 18);
+    glTranslatef(0.0f, -0.18f, 0.0f);
+    drawSphere(0.15f, 16, 16);
     glPopMatrix();
 
-    // Draw LUpperArm (box with offset)
+    // Draw LUpperArm
     glPushMatrix();
     joint_applyTransform(robot->LUpperArm);
-    glTranslatef(0.0f, -0.25f, 0.0f);
-    drawBox(0.15f, 0.5f, 0.15f);
+    glTranslatef(0.0f, -0.5f, 0.0f);
+    drawCylinder(armRadius, 0.5f, 18);
     glPopMatrix();
 
-    // Draw LForearm (box with offset)
+    // Draw LForearm 
     glPushMatrix();
     joint_applyTransform(robot->LForearm);
-    glTranslatef(0.0f, -0.25f, 0.0f);
-    drawBox(0.15f, 0.5f, 0.15f);
+    glTranslatef(0.0f, -0.5f, 0.0f);
+    drawCylinder(armRadius, 0.5f, 18);
+    glTranslatef(0.0f, -0.18f, 0.0f);
+    drawSphere(0.15f, 16, 16);
     glPopMatrix();
 
-    // Draw RThigh (box with offset)
+    // Draw RThigh
     glPushMatrix();
     joint_applyTransform(robot->RThigh);
-    glTranslatef(0.0f, -0.3f, 0.0f);
-    drawBox(0.2f, 0.6f, 0.2f);
+    glTranslatef(0.0f, -0.5f, 0.0f);
+    drawCylinder(legRadius, 0.5f, 18);
     glPopMatrix();
 
-    // Draw RCalf (box with offset)
+    // Draw RCalf
     glPushMatrix();
     joint_applyTransform(robot->RCalf);
-    glTranslatef(0.0f, -0.3f, 0.0f);
-    drawBox(0.2f, 0.6f, 0.2f);
+    glTranslatef(0.0f, -0.5f, 0.0f);
+    drawCylinder(legRadius, 0.5f, 18);
+    glTranslatef(0.0f, -0.18f, -0.12f);
+    drawBox(0.2f, 0.2f, 0.5f);
     glPopMatrix();
 
-    // Draw LThigh (box with offset)
+    // Draw LThigh
     glPushMatrix();
     joint_applyTransform(robot->LThigh);
-    glTranslatef(0.0f, -0.3f, 0.0f);
-    drawBox(0.2f, 0.6f, 0.2f);
+    glTranslatef(0.0f, -0.5f, 0.0f);
+    drawCylinder(legRadius, 0.5f, 18);
     glPopMatrix();
 
-    // Draw LCalf (box with offset)
+    // Draw LCalf
     glPushMatrix();
     joint_applyTransform(robot->LCalf);
-    glTranslatef(0.0f, -0.3f, 0.0f);
-    drawBox(0.2f, 0.6f, 0.2f);
+    glTranslatef(0.0f, -0.5f, 0.0f);
+    drawCylinder(legRadius, 0.5f, 18);
+    glTranslatef(0.0f, -0.18f, -0.12f);
+    drawBox(0.2f, 0.2f, 0.5f);
     glPopMatrix();
 }
 
@@ -375,9 +399,13 @@ void let_go_rocket(Robot *robot){
     robot->lowerTorso->y = 0.0f;
     robot->lowerTorso->z = 0.0f;
 
-    robot->core->rotZ *= 0.5f;
-    robot->core->rotY *= 0.5f;
     robot->core->rotX = 0.0f;
+    robot->core->rotY = 0.0f;
+    robot->core->rotZ = 0.0f;
+
+    robot->lowerTorso->rotX = randomFloat(-180.0f,180.0f);
+    robot->lowerTorso->rotY = randomFloat(-180.0f,180.0f);
+    robot->lowerTorso->rotZ = randomFloat(-180.0f,180.0f);
 }
 
 void grab_rocket(Robot *robot, Rocket *rocket)
@@ -390,7 +418,7 @@ void grab_rocket(Robot *robot, Rocket *rocket)
     // Position rocket relative to robot without changing world-space landing spot
     rocket->shell->x = 0.0f;
     rocket->shell->y = 0.0f;
-    rocket->shell->z = fminf(fmaxf(differenceZ, -4.5f), -0.5f);
+    rocket->shell->z = fminf(fmaxf(differenceZ, -4.2f), -0.8f);
 
     robot->lowerTorso->rotX = 0.0f;
     robot->lowerTorso->rotY = 0.0f;

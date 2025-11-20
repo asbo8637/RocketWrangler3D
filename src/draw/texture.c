@@ -1,7 +1,14 @@
 #ifdef USEGLEW
 #include <GL/glew.h>
 #endif
+#ifdef _WIN32
+#include <windows.h>
 #include <GL/glut.h>
+#elif defined(__APPLE__)
+#include <GLUT/glut.h>
+#else
+#include <GL/glut.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 

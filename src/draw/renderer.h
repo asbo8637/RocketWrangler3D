@@ -20,6 +20,6 @@ void displayDebugInfo(void);
 void updateFPS(double deltaTime);
 
 /* Main render function - clears buffers and renders entire scene */
-void render(double deltaTime);
+void render();
 
 #endif /* RENDERER_H */

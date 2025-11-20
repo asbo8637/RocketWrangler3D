@@ -11,8 +11,8 @@ void robot_surfpose(Robot *robot)
         0.0f, 75.0f, 0.0f,       // head
         10.0f, 0.0f, 60.0f,    // right upper arm: trailing arm extends back
         30.0f, 0.0f, -25.0f,     // right forearm: relaxed counterweight
-        -10.0f, -10.0f, -60.0f,    // left upper arm: leading arm forward for balance
-        10.0f, 0.0f, -5.0f,    // left forearm: gentle bend
+        25.0f, 0.0f, -60.0f,    // left upper arm: leading arm forward for balance
+        20.0f, 0.0f, 25.0f,    // left forearm: gentle bend
         45.0f, 0.0f, 0.0f,       // right thigh: now the rear leg inline with board
         -55.0f, 0.0f, 0.0f,      // right calf: weight compressed over back binding
         45.0f, 0.0f, -30.0f,       // left thigh: front leg set ahead along board axis

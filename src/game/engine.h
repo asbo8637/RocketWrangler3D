@@ -7,4 +7,7 @@ void initEngine(void);
 /* Update game state. deltaTime is in seconds */
 void updateEngine(double deltaTime);
 
+/* Retrieve the current bounce counter. */
+int engine_getBounceCount(void);
+
 #endif /* ENGINE_H */

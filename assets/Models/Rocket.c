@@ -1,6 +1,13 @@
 #include "Robot.h"
 #include "../Shapes/master.h"
+#ifdef _WIN32
+#include <windows.h>
 #include <GL/glut.h>
+#elif defined(__APPLE__)
+#include <GLUT/glut.h>
+#else
+#include <GL/glut.h>
+#endif
 #include "./Robot_positions/poses.h"
 #include <stdlib.h>
 #include <math.h>

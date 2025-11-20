@@ -1,5 +1,12 @@
 #include "joint_class.h"
+#ifdef _WIN32
+#include <windows.h>
 #include <GL/glut.h>
+#elif defined(__APPLE__)
+#include <GLUT/glut.h>
+#else
+#include <GL/glut.h>
+#endif
 #include <stdlib.h>
 
 // Create a new joint at position (0,0,0)

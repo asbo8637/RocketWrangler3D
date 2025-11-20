@@ -7,7 +7,10 @@
 #endif
 
 #define GL_GLEXT_PROTOTYPES
-#ifdef __APPLE__
+#ifdef _WIN32
+#include <windows.h>
+#include <GL/glut.h>
+#elif defined(__APPLE__)
 #include <GLUT/glut.h>
 #else
 #include <GL/glut.h>
@@ -16,22 +19,23 @@
 #include "renderer.h"
 #include "camera.h"
 #include "drawScene.h"
+#include "../game/engine.h"
 
 #ifndef RES
 #define RES 1
 #endif
 
-/* FPS tracking */
+// FPS tracking 
 static double fpsUpdateTime = 0.0;
 static int frameCount = 0;
 static double currentFPS = 0.0;
-static const double FPS_UPDATE_INTERVAL = 0.5; /* Update FPS display every 0.5 seconds */
+static const double FPS_UPDATE_INTERVAL = 0.5; // Update FPS display every 0.5 seconds
 
-/* Window dimensions */
-static int winW = 1800, winH = 1200;
+// Window dimensions
+static int winW = 900, winH = 600;
 static float aspect = 900.0f/600.0f;
 
-/* Helper function for text rendering */
+// Helper function for text rendering
 #define LEN 8192
 static void Print(const char *format, ...)
 {
@@ -48,7 +52,7 @@ void initRenderer(void)
 {
     glEnable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
-    glClearColor(0.05f, 0.05f, 0.08f, 1.0f);
+    glClearColor(0.25f, 0.65f, 0.95f, 1.0f);
 
 #ifdef USEGLEW
     if (glewInit() != GLEW_OK) { fprintf(stderr, "Error initializing GLEW\n"); exit(1); }
@@ -69,7 +73,8 @@ void setProjection(void)
 {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(60.0f, aspect, 0.5, 1000.0);
+    // Push far plane out to match long ground range
+    gluPerspective(60.0f, aspect, 1.0, 100000.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 }
@@ -84,15 +89,14 @@ void setupHUD(void)
 void displayDebugInfo(void)
 {
     setupHUD();
+
+    // Show bounce counter near the top-left corner.
+    glWindowPos2i(5, winH - 30);
+    Print("Bounces: %d / 1", engine_getBounceCount());
     
-    /* Display FPS at top-right corner */
+    // Display FPS at top-right corner
     glWindowPos2i(winW - 150, winH - 30);
     Print("FPS: %.1f", currentFPS);
-    
-    /* Display other debug info at bottom */
-    glWindowPos2i(5, 5);
-    Print("Target(%.1f, %.1f, %.1f)  Yaw %.2f Pitch %.2f Dist %.1f",
-          tpsTargetX, tpsTargetY, tpsTargetZ, tpsYaw, tpsPitch, tpsDist);
 }
 
 void updateFPS(double deltaTime)
@@ -108,13 +112,15 @@ void updateFPS(double deltaTime)
     }
 }
 
-void render(double deltaTime)
+void render()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     setProjection();
     applyTPSView();
-    drawScene(deltaTime);
+
+    // Draw world geometry centered near the camera target
+    drawScene(tpsTargetZ, tpsTargetX);
     
     displayDebugInfo();
     

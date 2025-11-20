@@ -1,8 +1,15 @@
+#ifdef _WIN32
+#include <windows.h>
 #include <GL/glut.h>
+#elif defined(__APPLE__)
+#include <GLUT/glut.h>
+#else
+#include <GL/glut.h>
+#endif
 
 typedef struct { float x,y,z; } Vec3;
 
-/* Each face: 4 verts (CCW when viewed from outside), one normal, two tri indices */
+//Draw the faces of the box
 static void drawFace(const Vec3 v[4], const Vec3 n)
 {
     glNormal3f(n.x, n.y, n.z);
@@ -18,12 +25,12 @@ static void drawFace(const Vec3 v[4], const Vec3 n)
     glEnd();
 }
 
-/* Centered at origin; w=width (X), h=height (Y), d=depth (Z) */
+// Centered at origin; w=width (X), h=height (Y), d=depth (Z)
 void drawBox(float w, float h, float d)
 {
     const float hx = 0.5f*w, hy = 0.5f*h, hz = 0.5f*d;
 
-    /* Define 6 faces as 4 corners each (CCW), with a flat normal per face */
+    // Define 6 faces as 4 corners each
     {
         // +X (right)
         Vec3 n = {+1,0,0};

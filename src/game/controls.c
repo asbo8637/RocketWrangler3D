@@ -1,4 +1,11 @@
+#ifdef _WIN32
+#include <windows.h>
 #include <GL/glut.h>
+#elif defined(__APPLE__)
+#include <GLUT/glut.h>
+#else
+#include <GL/glut.h>
+#endif
 #include <stdlib.h>
 #include <string.h>
 #include "../draw/camera.h"

@@ -1,4 +1,11 @@
+#ifdef _WIN32
+#include <windows.h>
 #include <GL/glut.h>
+#elif defined(__APPLE__)
+#include <GLUT/glut.h>
+#else
+#include <GL/glut.h>
+#endif
 #include <math.h>
 #include "prism.h"
 
@@ -7,20 +14,20 @@ void drawPrism(float width, float height, float depth)
     float halfWidth = width * 0.5f;
     float halfDepth = depth * 0.5f;
     
-    /* Calculate vertices for a triangular prism centered at origin */
+    // Calculate vertices for a triangular prism centered at origin 
     float vertices[6][3] = {
-        /* Front triangle */
-        {-halfWidth, 0.0f, halfDepth},        /* Bottom left */
-        {halfWidth, 0.0f, halfDepth},         /* Bottom right */
-        {0.0f, height, halfDepth},            /* Top */
+        // Front triangle
+        {-halfWidth, 0.0f, halfDepth},        // Bottom left
+        {halfWidth, 0.0f, halfDepth},         // Bottom right
+        {0.0f, height, halfDepth},            // Top
         
-        /* Back triangle */
-        {-halfWidth, 0.0f, -halfDepth},       /* Bottom left */
-        {halfWidth, 0.0f, -halfDepth},        /* Bottom right */
-        {0.0f, height, -halfDepth}            /* Top */
+        // Back triangle
+        {-halfWidth, 0.0f, -halfDepth},       // Bottom left
+        {halfWidth, 0.0f, -halfDepth},        // Bottom right
+        {0.0f, height, -halfDepth}            // Top
     };
 
-    /* Draw front triangle */
+    // Draw front triangle
     glBegin(GL_TRIANGLES);
     glNormal3f(0.0f, 0.0f, 1.0f);
     glVertex3fv(vertices[0]);
@@ -28,7 +35,7 @@ void drawPrism(float width, float height, float depth)
     glVertex3fv(vertices[2]);
     glEnd();
 
-    /* Draw back triangle */
+   // Draw back triangle
     glBegin(GL_TRIANGLES);
     glNormal3f(0.0f, 0.0f, -1.0f);
     glVertex3fv(vertices[5]);
@@ -36,7 +43,7 @@ void drawPrism(float width, float height, float depth)
     glVertex3fv(vertices[3]);
     glEnd();
 
-    /* Draw bottom face */
+    // Draw bottom face
     glBegin(GL_QUADS);
     glNormal3f(0.0f, -1.0f, 0.0f);
     glVertex3fv(vertices[3]);
@@ -45,7 +52,7 @@ void drawPrism(float width, float height, float depth)
     glVertex3fv(vertices[0]);
     glEnd();
 
-    /* Draw right face */
+    // Draw right face
     glBegin(GL_QUADS);
     {
         float dx = vertices[1][0] - vertices[2][0];
@@ -63,7 +70,7 @@ void drawPrism(float width, float height, float depth)
     glVertex3fv(vertices[2]);
     glEnd();
 
-    /* Draw left face */
+    // Draw left face
     glBegin(GL_QUADS);
     {
         float dx = vertices[0][0] - vertices[2][0];

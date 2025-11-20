@@ -58,14 +58,6 @@ void robot_setStance(Robot *robot,
                      float lCalfX, float lCalfY, float lCalfZ,
                      float speed);
 
-// In-air animation: random poses with continuous spinning
-// spinSpeed: degrees per second for torso rotation
-// poseDuration: seconds between random pose changes
-void robot_inAirAnimation(Robot *robot, float deltaTime);
-
-// Riding animations
-void robot_riding_animation(Robot *robot, float deltaTime);
-void surfing_ride_animation(Robot *robot, float deltaTime);
 
 void animate_robot(Robot *robot, float deltaTime);
 
