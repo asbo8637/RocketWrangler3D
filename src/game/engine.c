@@ -142,7 +142,7 @@ static void update_all_rockets(double deltaTime)
     if((int)round(accumulatedTime) % 2 == 0)
     {
         accumulatedTime = 1.6f;
-        rockets_spawn( robot->core->x + randomFloat(-90, 90), randomFloat(10, 90), robot->core->z-randomFloat(rocketSpawnDistance, rocketSpawnDistance+120), 0.0f, 0.0f, -rocketSpeedCof);
+        rockets_spawn(randomFloat(-90, 90), randomFloat(10, 90), robot->core->z-randomFloat(rocketSpawnDistance, rocketSpawnDistance+120), 0.0f, 0.0f, -rocketSpeedCof);
     }
     rockets_update(deltaTime, robot->core->z + 30.0f);
 }
