@@ -50,23 +50,28 @@ void setSeed(){
     groundSeed = (float)time(NULL);
 }
 
-static float groundHeight(float x, float z, float t)
+float get_groundHeight(float x, float z)
 {
     // Blend of layered sine noise plus hashed noise for nonrepeating bumps
     float h = 0.0f;
 
     float ax = fabsf(x);
-    if (ax > 100.0f)
+    if (ax > 80.0f)
     {
-        h = (ax - 100.0f) * 3.5f;   // climb rate outside center
+        h = (ax - 80.0f) * 2.5f;   // climb rate outside center
     }
 
-    return h-10.0f;
+    return h;
 }
 
 static void groundColor(float h, float x, float z, float seed)
 {
-    // Green to brown colors
+
+    float ax = fabsf(x);
+    if (ax > 80.0f)
+    {
+        h += 100.0f;
+    }
     float lerp = fminf(fmaxf(0.55f + h * 0.012f, 0.0f), 1.0f);
     float green[3] = {0.18f, 0.63f, 0.13f};
     float brown[3] = {0.40f, 0.25f, 0.10f};
@@ -90,13 +95,13 @@ static void groundColor(float h, float x, float z, float seed)
 }
 
 // Main scene drawing function
-void drawScene(float camZ, float camX)
+void drawScene(float camZ)
 {
     glEnable(GL_DEPTH_TEST);
     glDisable(GL_TEXTURE_2D);
 
     // Set up lighting
-    lightPos[0] = camX;
+    lightPos[0] = 0.0f;   // Anchor light to world origin so it doesn't chase the player
     lightPos[2] = camZ;
     setupLighting();
 
@@ -106,13 +111,13 @@ void drawScene(float camZ, float camX)
     const float cellSize = 20.0f;        // Grid cell size
     const float rangeX = 800.0f;        // render span on X around camera
     const float rangeZNeg = 5000.0f;  // how far back (-Z)
-    const float rangeZPos = 50.0f;      // how far forward (+Z)
+    const float rangeZPos = 250.0f;      // how far forward (+Z)
 
     // Align grid to cell size to reduce shimmering as the camera moves
-    float startX = floorf((camX - rangeX) / cellSize) * cellSize;
-    float endX   = camX + rangeX;
-    float startZ = floorf((camZ - rangeZNeg) / cellSize) * cellSize;
-    float endZ   = camZ + rangeZPos;
+    float startX = -rangeX;
+    float endX   = rangeX;
+    float startZ = floorf(camZ / cellSize) * cellSize - rangeZNeg;
+    float endZ   = startZ + rangeZPos + rangeZNeg;
 
     glNormal3f(0.0f, 1.0f, 0.0f);
     glDisable(GL_LIGHTING); // use vertex colors directly
@@ -129,7 +134,7 @@ void drawScene(float camZ, float camX)
             for (int xi = 0; xi < countX; ++xi)
             {
                 float x = startX + xi * cellSize;
-                heights[zi * countX + xi] = groundHeight(x, z, groundSeed);
+                heights[zi * countX + xi] = get_groundHeight(x, z);
             }
         }
 

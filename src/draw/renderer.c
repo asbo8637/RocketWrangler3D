@@ -121,7 +121,7 @@ void render()
     applyTPSView();
 
     // Draw world geometry centered near the camera target
-    drawScene(tpsTargetZ, tpsTargetX);
+    drawScene(tpsTargetZ);
     
     displayDebugInfo();
     

@@ -212,7 +212,7 @@ static void robot_inAirAnimation(Robot *robot, float deltaTime)
 {
     float crunchAngle = fminf(30.0f + controlState.moveZ * 60.0f, 60.0f); // Crunch more when moving up
     float spinSpeed = 500.0f + (250.0f * controlState.moveZ);
-    float rollAngle = controlState.moveX * 45.0f;
+    float rollAngle = controlState.moveX * 65.0f;
     if (!robot)
         return;
 
@@ -236,11 +236,11 @@ static void robot_inAirAnimation(Robot *robot, float deltaTime)
     else{
         robot->lowerTorso->animatingRot=1;
     }
-    robot->lowerTorso->rotZ += rollAngle * deltaTime * 1.0f;
+    robot->lowerTorso->rotZ += rollAngle * deltaTime * 1.6f;
 
     // Smoothly interpolate core's Y rotation toward target roll angle
     float targetRotY = -rollAngle * 1.5f;
-    robot->core->rotY += (targetRotY - robot->core->rotY) * deltaTime * 6.0f;
+    robot->core->rotY += (targetRotY - robot->core->rotY) * deltaTime * 9.0f;
 
     // Keep rotation in 0-360 range for cleaner values
     if (robot->lowerTorso->rotX < 0.0f)
