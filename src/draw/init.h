@@ -5,9 +5,9 @@
 
 // Global scene objects (defined in init.c)
 extern Robot *robot;
-// Ground texture handle (0 when not loaded)
-extern unsigned int groundTexture;
-extern unsigned int clayTexture;
+// Background texture handle (0 when not loaded)
+extern unsigned int backgroundTexture;
+extern unsigned int sandTexture;
 
 // Initialize all scene objects once at startup
 void initScene(void);

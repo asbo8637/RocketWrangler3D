@@ -17,11 +17,12 @@
 #include "../game/rockets.h"
 
 // Lighting 
-static float lightPos[4] = {0.f, 10000.f, 0.f, 0.f}; // Just like way up there lol
-static float lightAmb[4] = {0.15f, 0.15f, 0.15f, 1.f};
+static float lightPos[4] = {0.f, 1600.f, 0.f, 0.f}; // Just like way up there lol
+static float lightAmb[4] = {0.2f, 0.2f, 0.2f, 1.f};
 static float lightDif[4] = {1.0f, 1.0f, 1.0f, 1.f};
 static float lightSpe[4] = {1.00f, 1.00f, 1.00f, 1.f};
 static float groundSeed = -1.0f;
+static unsigned int seedBump = 0u;
 
 // Function to set up basic lighting
 void setupLighting(void)
@@ -47,8 +48,10 @@ static float hashNoise(float x, float z, float seed)
 }
 
 void setSeed(){
-    groundSeed = (float)time(NULL);
-    printf("%f\n", groundSeed);
+    // Keep seed in a small range so float precision isn't lost with time()
+    unsigned int t = (unsigned int)time(NULL) & 0xFFFFu;
+    ++seedBump;
+    groundSeed = (float)t + 1.234f * (float)seedBump;
 }
 
 static void drawBackground(float camZ)
@@ -57,15 +60,15 @@ static void drawBackground(float camZ)
         return;
 
     // Draw a big quad with a texture far in -Z
-    const float bgHalfWidth = 1599.0f*0.25f;
-    const float bgHeight = 1043.0f*0.5f;
-    const float bgZ = camZ - 1000.0f;
-    const float yBase = -20.0f;
+    const float bgHalfWidth = 612.0f*1.3f;
+    const float bgHeight =  408.0f*2.6f;
+    const float bgZ = camZ - 2000.0f;
+    const float yBase = -120.0f;
 
     glDisable(GL_LIGHTING);
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, backgroundTexture);
-    glColor3f(1.f, 1.f, 1.f);
+    glColor3f(0.8f, 0.8f, 0.8f);
 
     glDepthMask(GL_FALSE);
     glDisable(GL_DEPTH_TEST);
@@ -111,12 +114,12 @@ static void groundColor(float h, float x, float z, float seed)
     float jitter = 0.5f * (hashNoise(jx+seed, jz+seed, seed) - 0.5f);
     if (ax > 80.0f)
     {
-        wallFactor = 0.7f;
-        jitter = 0.5f * (hashNoise(jh, 1, 1) - 0.5f);
+        wallFactor = 0.8f;
+        jitter = 0.5f * (hashNoise(jh, jx, 1) - 0.5f);
     }
     // world-anchored jitter so colors slide consistently as you move
-    float lerp = fmaxf(0.2f + sinf(h*jitter*0.2f), wallFactor);
-    float Sand[3] = {0.88f, 0.69f, 0.53f};
+    float lerp = fmaxf(0.2f + sinf(h*seed*0.2f), wallFactor);
+    float Sand[3] = {0.9f, 0.70f, 0.48f};
     float DarkRed[3] = {0.73f, 0.19f, 0.05f};
     float r = Sand[0] * (1 - lerp) + DarkRed[0] * lerp;
     float g = Sand[1] * (1 - lerp) + DarkRed[1] * lerp;
@@ -124,7 +127,7 @@ static void groundColor(float h, float x, float z, float seed)
     // Tiny spatial jitter snapped to coarse grid
     r += jitter * 0.20f;
     g += jitter * 0.08f;
-    b += jitter * -0.10f;
+    b += jitter * -0.05f;
     if (r < 0.f) r = 0.f; 
     if (r > 1.f) r = 1.f;
     if (g < 0.f) g = 0.f; 
@@ -144,16 +147,15 @@ void drawScene(float camZ)
     glDisable(GL_TEXTURE_2D);
 
     // Set up lighting
-    lightPos[0] = 0.0f;   // Anchor light to world origin so it doesn't chase the player
-    lightPos[2] = camZ;
+    lightPos[2] = camZ-800.0f;
     setupLighting();
 
     // Bumpy ground plane
     glPushMatrix();
     const float yGround = -0.1f;
-    const float cellSize = 5.0f;        // Grid cell size
-    const float rangeX = 400.0f;        // render span on X around camera
-    const float rangeZNeg = 900.0f;  // how far back (-Z)
+    const float cellSize = 8.0f;        // Grid cell size
+    const float rangeX = 300.0f;        // render span on X around camera
+    const float rangeZNeg = 2000.0f;  // how far back (-Z)
     const float rangeZPos = 250.0f;      // how far forward (+Z)
 
     // Align grid to cell size to reduce shimmering as the camera moves

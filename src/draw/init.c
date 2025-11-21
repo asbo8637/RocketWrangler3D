@@ -4,17 +4,16 @@
 #include "texture.h"
 #include "../game/rockets.h"
 
-// Ground texture (0 means not available)
-unsigned int groundTexture = 0u;
-unsigned int clayTexture = 0u;
+// Background texture (0 means not available)
+unsigned int backgroundTexture = 0u;
+unsigned int sandTexture = 0u;
 Robot *robot = NULL;
 
 // Initialize all scene objects once at startup
 void initScene(void)
 {
-    // Load ground texture (seamless, tiling)
-    groundTexture = loadTexture2D("assets/Textures/grass-texture.png");
-    clayTexture = loadTexture2D("assets/Textures/close-up-mixture-clay-powder.jpg");
+    backgroundTexture = loadTexture2D("assets/Textures/istockphoto-510322864-612x612.jpg");
+    sandTexture = loadTexture2D("assets/Textures/sand-surface-texture-beige-background-zen-peace-concept_53876-126523.png");
 }
 
 // Cleanup scene objects on shutdown

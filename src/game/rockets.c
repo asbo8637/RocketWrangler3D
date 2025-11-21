@@ -7,7 +7,7 @@
 static Rocket **sRockets = NULL;
 static size_t sCount = 0u;
 static size_t sCapacity = 0u;
-static int maxRockets = 30;
+static int maxRockets = 35;
 
 // Capsule approximation of rocket body (matches drawCylinder radius 5, height 10)
 static const float ROCKET_RADIUS = 0.8f;

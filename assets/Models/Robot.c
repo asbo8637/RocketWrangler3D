@@ -240,7 +240,7 @@ static void robot_inAirAnimation(Robot *robot, float deltaTime)
 
     // Smoothly interpolate core's Y rotation toward target roll angle
     float targetRotY = -rollAngle * 1.5f;
-    robot->core->rotY += (targetRotY - robot->core->rotY) * deltaTime * 9.0f;
+    robot->core->rotY += -rollAngle * 1.5f * deltaTime;
 
     // Keep rotation in 0-360 range for cleaner values
     if (robot->lowerTorso->rotX < 0.0f)

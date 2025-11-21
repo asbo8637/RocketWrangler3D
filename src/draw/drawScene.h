@@ -9,6 +9,7 @@ void drawScene(float camZ);
 
 void setSeed(void);
 
+
 float get_groundHeight(float x, float z);
 
 #endif // DRAWSCENE_H
