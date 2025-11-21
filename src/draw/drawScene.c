@@ -147,7 +147,7 @@ void drawScene(float camZ)
     glDisable(GL_TEXTURE_2D);
 
     // Set up lighting
-    lightPos[2] = camZ-800.0f;
+    lightPos[2] = camZ-600.0f;
     setupLighting();
 
     // Bumpy ground plane
