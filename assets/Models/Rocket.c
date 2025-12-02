@@ -107,8 +107,8 @@ void rocket_draw(const Rocket *rocket)
     // Three fins around the base using small prisms
     const float finWidth = 2.2f;       // span away from the hull
     const float finHeight = 1.5f;      // rises up the body
-    const float finThickness = 0.3f;   // thickness along tangential direction
-    const float finBackOffset =  bodyLength; // slide toward the tail along the 10.0f body
+    const float finThickness = 0.3f;   // thickness
+    const float finBackOffset =  bodyLength; // slide toward the tail
 
     for (int i = 0; i < 3; ++i)
     {

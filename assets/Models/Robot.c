@@ -323,7 +323,7 @@ void robot_draw(const Robot *robot)
     const float armRadius = 0.12f;
     const float legRadius = 0.15f;
 
-    float generalColor[4] = {0.55f, 0.45f, 0.45f, 1.0f};
+    float generalColor[4] = {0.75f, 0.55f, 0.25f, 1.0f};
     float skinColor[4]  = {0.76f, 0.59f, 0.47f, 1.0f};
     float shoeColor[4]  = {0.08f, 0.08f, 0.08f, 1.0f};
     float brightWhite[4] = {0.9f, 0.9f, 0.9f, 1.0f};
@@ -398,20 +398,33 @@ void robot_draw(const Robot *robot)
     // Draw RUpperArm
     glPushMatrix();
     joint_applyTransform(robot->RUpperArm);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, flannelTex);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, brightWhite);
+    glColor3f(0.9f, 0.9f, 0.9f);
     drawSphere(armRadius, 16, 16);
     glTranslatef(0.0f, -0.4f, 0.0f); // shorter upper arm
     drawCylinder(armRadius, 0.4f, 18);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_TEXTURE_2D);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, generalColor);
     glPopMatrix();
 
     // Draw RForearm
     glPushMatrix();
     joint_applyTransform(robot->RForearm);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, flannelTex);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, brightWhite);
+    glColor3f(0.9f, 0.9f, 0.9f);
     drawSphere(armRadius, 16, 16);
     glTranslatef(0.0f, -0.4f, 0.0f);
     drawCylinder(armRadius, 0.4f, 18);
 
         //hand
         glTranslatef(0.0f, -0.15f, 0.0f);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glDisable(GL_TEXTURE_2D);
         glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, skinColor);
         drawSphere(0.15f, 16, 16);
         glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, generalColor);
@@ -420,20 +433,33 @@ void robot_draw(const Robot *robot)
     // Draw LUpperArm
     glPushMatrix();
     joint_applyTransform(robot->LUpperArm);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, flannelTex);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, brightWhite);
+    glColor3f(0.9f, 0.9f, 0.9f);
     drawSphere(armRadius, 16, 16);
     glTranslatef(0.0f, -0.4f, 0.0f);
     drawCylinder(armRadius, 0.4f, 18);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_TEXTURE_2D);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, generalColor);
     glPopMatrix();
 
     // Draw LForearm 
     glPushMatrix();
     joint_applyTransform(robot->LForearm);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, flannelTex);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, brightWhite);
+    glColor3f(0.9f, 0.9f, 0.9f);
     drawSphere(armRadius, 16, 16);
     glTranslatef(0.0f, -0.4f, 0.0f);
     drawCylinder(armRadius, 0.4f, 18);
 
         //hand
         glTranslatef(0.0f, -0.15f, 0.0f);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glDisable(GL_TEXTURE_2D);
         glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, skinColor);
         drawSphere(0.16f, 16, 16);
         glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, generalColor);

@@ -24,7 +24,7 @@ static float lightSpe[4] = {1.00f, 1.00f, 1.00f, 1.f};
 static float groundSeed = -1.0f;
 static unsigned int seedBump = 0u;
 // Brighter, warmer fog to lift the background
-static const float fogColor[4] = {0.70f, 0.36f, 0.30f, 1.0f};
+static const float fogColor[4] = {0.70f, 0.46f, 0.30f, 1.0f};
 
 // Function to set up basic lighting
 void setupLighting(void)
