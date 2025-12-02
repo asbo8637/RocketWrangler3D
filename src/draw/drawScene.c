@@ -17,7 +17,7 @@
 #include "../game/rockets.h"
 
 // Lighting 
-static float lightPos[4] = {0.f, 2000.f, 0.f, 0.f}; // Just like way up there lol
+static float lightPos[4] = {0.f, 600.f, 0.f, 1.f}; // Just like way up there lol
 static float lightAmb[4] = {0.15f, 0.15f, 0.15f, 1.f};
 static float lightDif[4] = {1.0f, 1.0f, 1.0f, 1.f};
 static float lightSpe[4] = {1.00f, 1.00f, 1.00f, 1.f};
@@ -43,9 +43,9 @@ static void setupFog(void)
 {
     glEnable(GL_FOG);
     glFogfv(GL_FOG_COLOR, fogColor);
-    glFogi(GL_FOG_MODE, GL_EXP);
-    glFogf(GL_FOG_START, 500.0f);
-    glFogf(GL_FOG_END, 2000.0f);
+    glFogi(GL_FOG_MODE, GL_LINEAR);
+    glFogf(GL_FOG_START, 220.0f);
+    glFogf(GL_FOG_END, 1100.0f);
     glHint(GL_FOG_HINT, GL_NICEST);
 }
 
@@ -71,15 +71,15 @@ static void drawBackground(float camZ)
         return;
 
     // Draw a big quad with a texture far in -Z
-    const float bgHalfWidth = 612.0f*1.3f;
-    const float bgHeight =  408.0f*2.6f;
-    const float bgZ = camZ - 2000.0f;
-    const float yBase = -120.0f;
+    const float bgHalfWidth = 612.0f*0.626f;
+    const float bgHeight =  408.0f*1.3f;
+    const float bgZ = camZ - 1000.0f;
+    const float yBase = -60.0f;
 
     glDisable(GL_LIGHTING);
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, backgroundTexture);
-    glColor3f(0.8f, 0.8f, 0.8f);
+    glColor3f(1.2f, 1.2f, 1.2f);
 
     glDepthMask(GL_FALSE);
     glDisable(GL_DEPTH_TEST);
@@ -152,14 +152,14 @@ static void groundColor(float h, float x, float z, float seed)
 // Main scene drawing function
 void drawScene(float camZ)
 {
-    setupFog();
     drawBackground(camZ);
+    setupFog();
 
     glEnable(GL_DEPTH_TEST);
     glDisable(GL_TEXTURE_2D);
 
     // Set up lighting
-    lightPos[2] = camZ-400.0f;
+    lightPos[2] = camZ-200.0f;
     setupLighting();
 
     // Bumpy ground plane
@@ -167,7 +167,7 @@ void drawScene(float camZ)
     const float yGround = -0.1f;
     const float cellSize = 8.0f;        // Grid cell size
     const float rangeX = 300.0f;        // render span on X around camera
-    const float rangeZNeg = 2000.0f;  // how far back (-Z)
+    const float rangeZNeg = 1000.0f;  // how far back (-Z)
     const float rangeZPos = 250.0f;      // how far forward (+Z)
 
     // Align grid to cell size to reduce shimmering as the camera moves

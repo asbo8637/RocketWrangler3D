@@ -8,7 +8,7 @@ void robot_surfpose(Robot *robot)
     robot_setStance(robot,
         -10.0f, -90.0f, -10.0f,  // lower torso
         -10.0f, 20.0f, -8.0f,   // upper torso
-        0.0f, 75.0f, 0.0f,       // head
+        0.0f, 35.0f, 0.0f,       // head
         10.0f, 0.0f, 60.0f,    // right upper arm: trailing arm extends back
         30.0f, 0.0f, -25.0f,     // right forearm: relaxed counterweight
         25.0f, 0.0f, -60.0f,    // left upper arm: leading arm forward for balance

@@ -92,7 +92,7 @@ void displayDebugInfo(void)
 
     // Show bounce counter near the top-left corner.
     glWindowPos2i(5, winH - 30);
-    Print("Score: %d  Bounces: %d / 1", engine_getScore(), engine_getBounceCount());
+    Print("Score: %d  Bounces Left: %d / 1", engine_getScore(), ((engine_getBounceCount()-1)*-1));
     
     // Display FPS at top-right corner
     glWindowPos2i(winW - 150, winH - 30);

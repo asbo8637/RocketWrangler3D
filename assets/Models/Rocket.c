@@ -71,7 +71,7 @@ void rocket_draw(const Rocket *rocket)
     // Draw rocket shell
     glPushMatrix();
     joint_applyTransform(rocket->shell);
-    drawCylinder(0.8f, 6.0f, 16);
+    drawCylinder(1.0f, 10.0f, 16);
     glPopMatrix();
 }
 

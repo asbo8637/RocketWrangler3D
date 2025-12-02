@@ -11,10 +11,24 @@
 #include "./Robot_positions/poses.h"
 #include "Rocket.h"
 #include "../../src/game/controls.h"
+#include "../../src/draw/texture.h"
 #include <stdlib.h>
 #include <math.h>
 
 static const float poseDuration = 0.2f; // seconds between random in-air poses
+static unsigned int leatherTex = 0u;
+static unsigned int denimTex = 0u;
+static unsigned int flannelTex = 0u;
+
+static void ensureRobotTexturesLoaded(void)
+{
+    if (leatherTex == 0u)
+        leatherTex = loadTexture2D("assets/Textures/coudy-brown-leather-texture-wallpaper-fabric-stock-image-design-5.jpg");
+    if (denimTex == 0u)
+        denimTex = loadTexture2D("assets/Textures/texture-of-denim-jeans-fabric-background-julien.jpg");
+    if (flannelTex == 0u)
+        flannelTex = loadTexture2D("assets/Textures/flannel.jpg");
+}
 
 static float randomFloat(float min, float max)
 {
@@ -96,23 +110,23 @@ void robot_init(Robot *robot, float x, float y, float z)
     robot->head->z = 0.0f;
 
     // Right upper arm
-    robot->RUpperArm->x = 0.4f;
+    robot->RUpperArm->x = 0.37f;
     robot->RUpperArm->y = 0.4f; // Near top of upper torso
     robot->RUpperArm->z = 0.0f;
 
     // Right forearm
-    robot->RForearm->y = -0.5f;
+    robot->RForearm->y = -0.4f;
 
     // Left upper arm
-    robot->LUpperArm->x = -0.4f;
+    robot->LUpperArm->x = -0.37f;
     robot->LUpperArm->y = 0.4f; // Near top of upper torso
     robot->LUpperArm->z = 0.0f;
 
     // Left forearm
-    robot->LForearm->y = -0.5f;
+    robot->LForearm->y = -0.4f;
 
     // Right thigh
-    robot->RThigh->x = 0.25f;
+    robot->RThigh->x = 0.14f;
     robot->RThigh->y = -0.25f;
     robot->RThigh->z = 0.0f;
 
@@ -120,7 +134,7 @@ void robot_init(Robot *robot, float x, float y, float z)
     robot->RCalf->y = -0.6f;
 
     // Left thigh
-    robot->LThigh->x = -0.25f;
+    robot->LThigh->x = -0.14f;
     robot->LThigh->y = -0.25f;
     robot->LThigh->z = 0.0f;
 
@@ -211,7 +225,7 @@ void robot_setStance(Robot *robot,
 static void robot_inAirAnimation(Robot *robot, float deltaTime)
 {
     float crunchAngle = fminf(30.0f + controlState.moveZ * 60.0f, 60.0f); // Crunch more when moving up
-    float spinSpeed = 500.0f + (250.0f * controlState.moveZ);
+    float spinSpeed = 550.0f + (250.0f * controlState.moveZ);
     float rollAngle = controlState.moveX * 65.0f;
     if (!robot)
         return;
@@ -236,11 +250,11 @@ static void robot_inAirAnimation(Robot *robot, float deltaTime)
     else{
         robot->lowerTorso->animatingRot=1;
     }
-    robot->lowerTorso->rotZ += rollAngle * deltaTime * 1.6f;
+    robot->lowerTorso->rotZ -= rollAngle * deltaTime * 2.0f;
 
     // Smoothly interpolate core's Y rotation toward target roll angle
-    float targetRotY = -rollAngle * 1.5f;
-    robot->core->rotY += -rollAngle * 1.5f * deltaTime;
+    robot->lowerTorso->rotY += -rollAngle * 1.6f * deltaTime;
+    robot->lowerTorso->rotY = fminf(fmaxf(robot->lowerTorso->rotY, -70.0f), 70.0f);
 
     // Keep rotation in 0-360 range for cleaner values
     if (robot->lowerTorso->rotX < 0.0f)
@@ -304,94 +318,193 @@ void robot_draw(const Robot *robot)
     if (!robot)
         return;
 
-    const float armRadius = 0.10f;
-    const float legRadius = 0.13f;
+    ensureRobotTexturesLoaded();
 
-    float robotColor[4] = {0.7f, 0.7f, 0.9f, 1.0f};
-    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, robotColor);
+    const float armRadius = 0.12f;
+    const float legRadius = 0.15f;
+
+    float generalColor[4] = {0.67f, 0.61f, 0.53f, 1.0f};
+    float skinColor[4]  = {0.88f, 0.64f, 0.32f, 1.0f};
+    float shoeColor[4]  = {0.05f, 0.05f, 0.05f, 1.0f};
+    float brightWhite[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+    float brightDenimMod[4] = {1.4f, 1.4f, 1.4f, 1.0f};
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, generalColor);
 
     // Draw lower torso
     glPushMatrix();
     joint_applyTransform(robot->lowerTorso);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, flannelTex);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, brightWhite);
+    glColor3f(0.8f, 0.8f, 0.8f);
     drawBox(0.6f, 0.45f, 0.3f);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_TEXTURE_2D);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, generalColor);
     glPopMatrix();
 
     // Draw upper torso
     glPushMatrix();
     joint_applyTransform(robot->upperTorso);
+
+        //Draw connecting cylinder
+        glTranslatef(0.225f, 0.0f, 0.0f);
+        glRotatef(90.0f, 0.0f, 0.0f, 1.0f);
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, flannelTex);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, brightWhite);
+        glColor3f(1.0f, 1.0f, 1.0f);
+        drawCylinder(0.15f, 0.45f, 18);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glDisable(GL_TEXTURE_2D);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, generalColor);
+        glRotatef(-90.0f, 0.0f, 0.0f, 1.0f);
+        glTranslatef(-0.225f, 0.0f, 0.0f);
+
     glTranslatef(0.0f, 0.225f, 0.0f);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, flannelTex);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, brightWhite);
+    glColor3f(1.0f, 1.0f, 1.0f);
     drawBox(0.6f, 0.45f, 0.3f);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_TEXTURE_2D);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, generalColor);
     glPopMatrix();
 
     // Draw head 
     glPushMatrix();
     joint_applyTransform(robot->head);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, skinColor);
     drawSphere(0.3f, 16, 16);
-    drawCurvedCircle(0.5f, 0.05f, 16);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, generalColor);
+
+    glTranslatef(0.0f, 0.14f, 0.0f);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, leatherTex);
+    glDisable(GL_LIGHTING);
+    glColor3f(0.3f, 0.3f, 0.3f);
+    drawCowboyHat(0.6f, 1.0f, 0.3f, 20.0f,
+                  0.25f, 0.33f,
+                  18);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_TEXTURE_2D);
+    glEnable(GL_LIGHTING);
     glPopMatrix();
 
     // Draw RUpperArm
     glPushMatrix();
     joint_applyTransform(robot->RUpperArm);
-    glTranslatef(0.0f, -0.5f, 0.0f); // top at joint, cylinder extends downwards
-    drawCylinder(armRadius, 0.5f, 18);
+    drawSphere(armRadius, 16, 16);
+    glTranslatef(0.0f, -0.4f, 0.0f); // shorter upper arm
+    drawCylinder(armRadius, 0.4f, 18);
     glPopMatrix();
 
     // Draw RForearm
     glPushMatrix();
     joint_applyTransform(robot->RForearm);
-    glTranslatef(0.0f, -0.5f, 0.0f);
-    drawCylinder(armRadius, 0.5f, 18);
-    glTranslatef(0.0f, -0.18f, 0.0f);
-    drawSphere(0.15f, 16, 16);
+    drawSphere(armRadius, 16, 16);
+    glTranslatef(0.0f, -0.4f, 0.0f);
+    drawCylinder(armRadius, 0.4f, 18);
+
+        //hand
+        glTranslatef(0.0f, -0.15f, 0.0f);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, skinColor);
+        drawSphere(0.15f, 16, 16);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, generalColor);
     glPopMatrix();
 
     // Draw LUpperArm
     glPushMatrix();
     joint_applyTransform(robot->LUpperArm);
-    glTranslatef(0.0f, -0.5f, 0.0f);
-    drawCylinder(armRadius, 0.5f, 18);
+    drawSphere(armRadius, 16, 16);
+    glTranslatef(0.0f, -0.4f, 0.0f);
+    drawCylinder(armRadius, 0.4f, 18);
     glPopMatrix();
 
     // Draw LForearm 
     glPushMatrix();
     joint_applyTransform(robot->LForearm);
-    glTranslatef(0.0f, -0.5f, 0.0f);
-    drawCylinder(armRadius, 0.5f, 18);
-    glTranslatef(0.0f, -0.18f, 0.0f);
-    drawSphere(0.15f, 16, 16);
+    drawSphere(armRadius, 16, 16);
+    glTranslatef(0.0f, -0.4f, 0.0f);
+    drawCylinder(armRadius, 0.4f, 18);
+
+        //hand
+        glTranslatef(0.0f, -0.15f, 0.0f);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, skinColor);
+        drawSphere(0.16f, 16, 16);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, generalColor);
+    
     glPopMatrix();
 
     // Draw RThigh
     glPushMatrix();
     joint_applyTransform(robot->RThigh);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, denimTex);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, brightDenimMod);
+    glColor3f(1.4f, 1.4f, 1.4f);
+    drawSphere(legRadius, 16, 16);
     glTranslatef(0.0f, -0.5f, 0.0f);
     drawCylinder(legRadius, 0.5f, 18);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_TEXTURE_2D);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, generalColor);
     glPopMatrix();
 
     // Draw RCalf
     glPushMatrix();
     joint_applyTransform(robot->RCalf);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, denimTex);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, brightDenimMod);
+    glColor3f(1.4f, 1.4f, 1.4f);
+    drawSphere(legRadius, 16, 16);
     glTranslatef(0.0f, -0.5f, 0.0f);
     drawCylinder(legRadius, 0.5f, 18);
-    glTranslatef(0.0f, -0.18f, -0.12f);
+
+    //Foot
+    glTranslatef(0.0f, -0.13f, -0.11f);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_TEXTURE_2D);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, shoeColor);
     drawBox(0.2f, 0.2f, 0.5f);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, generalColor);
     glPopMatrix();
 
     // Draw LThigh
     glPushMatrix();
     joint_applyTransform(robot->LThigh);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, denimTex);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, brightDenimMod);
+    glColor3f(1.4f, 1.4f, 1.4f);
+    drawSphere(legRadius, 16, 16);
     glTranslatef(0.0f, -0.5f, 0.0f);
     drawCylinder(legRadius, 0.5f, 18);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_TEXTURE_2D);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, generalColor);
     glPopMatrix();
 
     // Draw LCalf
     glPushMatrix();
     joint_applyTransform(robot->LCalf);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, denimTex);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, brightDenimMod);
+    glColor3f(1.4f, 1.4f, 1.4f);
+    drawSphere(legRadius, 16, 16);
     glTranslatef(0.0f, -0.5f, 0.0f);
     drawCylinder(legRadius, 0.5f, 18);
-    glTranslatef(0.0f, -0.18f, -0.12f);
+
+    //Foot
+    glTranslatef(0.0f, -0.13f, -0.11f);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_TEXTURE_2D);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, shoeColor);
     drawBox(0.2f, 0.2f, 0.5f);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, generalColor);
     glPopMatrix();
 }
 
@@ -405,8 +518,13 @@ void let_go_rocket(Robot *robot){
     robot->core->rotZ = 0.0f;
 
     robot->lowerTorso->rotX = randomFloat(-180.0f,180.0f);
-    robot->lowerTorso->rotY = randomFloat(-180.0f,180.0f);
+    robot->lowerTorso->rotY = randomFloat(-20.0f,20.0f);
     robot->lowerTorso->rotZ = randomFloat(-180.0f,180.0f);
+    
+    robot->lowerTorso->targetRotX = 0.0f;
+    robot->lowerTorso->targetRotY = 0.0f;
+    robot->lowerTorso->targetRotZ = 0.0f;
+    robot->animateStyle = 0;
 }
 
 void grab_rocket(Robot *robot, Rocket *rocket)
@@ -418,8 +536,8 @@ void grab_rocket(Robot *robot, Rocket *rocket)
     float differenceZ = rocket->shell->z - robot->core->z;
     // Position rocket relative to robot without changing world-space landing spot
     rocket->shell->x = 0.0f;
-    rocket->shell->y = 0.0f;
-    rocket->shell->z = fminf(fmaxf(differenceZ, -4.2f), -0.8f);
+    rocket->shell->y = -0.2f;
+    rocket->shell->z = fminf(fmaxf(differenceZ, -9.2f), -0.8f);
 
     robot->lowerTorso->rotX = 0.0f;
     robot->lowerTorso->rotY = 0.0f;

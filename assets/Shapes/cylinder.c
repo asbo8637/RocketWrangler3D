@@ -21,10 +21,14 @@ void drawCylinder(float radius, float height, int segments)
     // Draw the top circle
     glBegin(GL_TRIANGLE_FAN);
     glNormal3f(0.0f, 1.0f, 0.0f);
+    glTexCoord2f(0.5f, 0.5f);
     glVertex3f(0.0f, height, 0.0f); 
     
     for(i = segments; i >= 0; i--) {
         angle = 2.0f * M_PI * i / segments;
+        float u = 0.5f + 0.5f * cosf(angle);
+        float v = 0.5f + 0.5f * sinf(angle);
+        glTexCoord2f(u, v);
         glVertex3f(radius * cosf(angle), height, radius * sinf(angle));
     }
     glEnd();
@@ -32,10 +36,14 @@ void drawCylinder(float radius, float height, int segments)
     // Draw the bottom circle
     glBegin(GL_TRIANGLE_FAN);
     glNormal3f(0.0f, -1.0f, 0.0f);
+    glTexCoord2f(0.5f, 0.5f);
     glVertex3f(0.0f, 0.0f, 0.0f);  // Center of the bottom 
     
     for(i = 0; i <= segments; i++) {
         angle = 2.0f * M_PI * i / segments;
+        float u = 0.5f + 0.5f * cosf(angle);
+        float v = 0.5f + 0.5f * sinf(angle);
+        glTexCoord2f(u, v);
         glVertex3f(radius * cosf(angle), 0.0f, radius * sinf(angle));
     }
     glEnd();
@@ -50,8 +58,10 @@ void drawCylinder(float radius, float height, int segments)
         glNormal3f(x, 0.0f, z);
         
         // Top vertex
+        glTexCoord2f((float)i / (float)segments, 1.0f);
         glVertex3f(radius * x, height, radius * z);
         // Bottom vertex
+        glTexCoord2f((float)i / (float)segments, 0.0f);
         glVertex3f(radius * x, 0.0f, radius * z);
     }
     glEnd();

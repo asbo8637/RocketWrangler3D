@@ -9,9 +9,9 @@ static size_t sCount = 0u;
 static size_t sCapacity = 0u;
 static int maxRockets = 35;
 
-// Capsule approximation of rocket body (matches drawCylinder radius 5, height 10)
-static const float ROCKET_RADIUS = 0.8f;
-static const float ROCKET_HEIGHT = 6.0f;
+// Capsule approximation of rocket body (matches drawCylinder radius 1.2, height 9)
+static const float ROCKET_RADIUS = 1.0f;
+static const float ROCKET_HEIGHT = 10.0f;
 
 static int ensure_capacity(size_t desired)
 {
@@ -100,15 +100,15 @@ Rocket *rockets_get(size_t index)
     return sRockets[index];
 }
 
-//Rockets are made of 3 collision spheres. 
+// Rockets are approximated with an AABB using the radius/height above
 Rocket *rockets_findCollision(float px, float py, float pz, float playerRadius)
 {
     if (sCount == 0u)
         return NULL;
-
+    Rocket *rocket = NULL;
     for (size_t i = 0u; i < sCount; ++i)
     {
-        Rocket *rocket = sRockets[i];
+        rocket = sRockets[i];
         if (!rocket || !rocket->shell)
             continue;
 

@@ -13,7 +13,6 @@ Robot *robot = NULL;
 void initScene(void)
 {
     backgroundTexture = loadTexture2D("assets/Textures/istockphoto-510322864-612x612.jpg");
-    sandTexture = loadTexture2D("assets/Textures/sand-surface-texture-beige-background-zen-peace-concept_53876-126523.png");
 }
 
 // Cleanup scene objects on shutdown
