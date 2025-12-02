@@ -15,18 +15,12 @@
 float tpsTargetX = 0.f, tpsTargetY = 2.0f, tpsTargetZ = -20.f;
 float tpsYaw  = 1.57f;     // radians left/right orbit 
 float tpsPitch = -0.35f;   // radians up/down (clamped)
-float tpsDist  = 25.0f;   // distance from target
+float tpsDist  = 10.0f;    // distance from target (kept within clamp range)
 
 // Camera constants 
-static const float baseTurnSpeed = 2.0f;    // Radians per second
-static const float baseZoomSpeed = 20.0f;   // Units per second
-static const float tpsMinDist = 5.0f;
-static const float tpsMaxDist = 80.0f;
-static const float tpsMinPitch = -1.2f;
-static const float tpsMaxPitch = 1.2f;
 static const float CAMERA_POS_SMOOTH_RATE = 20.0f;
-static const float CAMERA_YAW_SMOOTH_RATE = 8.0f;
-static const float CAMERA_DIST_SMOOTH_RATE = 6.0f;
+static const float CAMERA_YAW_SMOOTH_RATE = 10.0f;
+static const float CAMERA_DIST_SMOOTH_RATE = 3.0f;
 
 // Helper function for camera direction
 static void tpsForward(float yaw, float pitch, float *fx, float *fy, float *fz)
@@ -43,7 +37,7 @@ void applyTPSView(void)
 {
     float fx, fy, fz;
     tpsForward(tpsYaw, tpsPitch, &fx, &fy, &fz);
-    float camX_ = tpsTargetX - tpsDist * fx;
+    float camX_ = tpsTargetX;
     float camY_ = tpsTargetY - tpsDist * fy + 1.5f; // small lift
     float camZ_ = tpsTargetZ - tpsDist * fz;
 
@@ -62,14 +56,14 @@ void camera_update(const Joint *robotCore, float velocityX, float velocityZ, flo
     const float speedMagnitude = sqrtf(velocityX * velocityX + velocityZ * velocityZ + velocityY * velocityY );
     const float dt = (float)deltaTime;
     const float desiredTargetX = robotCore->x;
-    const float desiredTargetY = 10.0f + robotCore->y;
+    const float desiredTargetY = 5.0f + robotCore->y;
     const float desiredTargetZ = robotCore->z + 10.0f;
-    const float desiredDist = fminf(fmaxf(-21.0f + 0.3f * fabsf(speedMagnitude), 6.0f), 14.0f);
+    const float desiredDist = -2.0f + 0.1f * fabsf(speedMagnitude);
     const float desiredYaw = 1.57f + desiredTargetX * 0.002f;
-    const float basePitch = -0.04f;
+    const float basePitch = -0.05f;
     const float altitudeInfluence = 0.0015f;
     const float minPitch = -1.0f;
-    const float maxPitch = 0.0f;
+    const float maxPitch = -0.1f;
     
     float altitudeDelta = fmaxf(robotCore->y - 10.0f, 0.0f);
     float desiredPitch = basePitch - altitudeInfluence * altitudeDelta;
@@ -84,36 +78,6 @@ void camera_update(const Joint *robotCore, float velocityX, float velocityZ, flo
     tpsTargetY += (desiredTargetY - tpsTargetY) * posAlpha;
     tpsTargetZ += (desiredTargetZ - tpsTargetZ) * posAlpha;
     tpsDist += (desiredDist - tpsDist) * distAlpha;
-    tpsDist = fminf(fmaxf(tpsDist, 6.0f), 14.0f);
     tpsYaw += (desiredYaw - tpsYaw) * yawAlpha;
     tpsPitch = desiredPitch;
-}
-
-// Camera rotation and zoom
-void turnLeft(float deltaTime) {
-    tpsYaw += baseTurnSpeed * deltaTime;
-}
-
-void turnRight(float deltaTime) {
-    tpsYaw -= baseTurnSpeed * deltaTime;
-}
-
-void lookUp(float deltaTime) {
-    tpsPitch += baseTurnSpeed * deltaTime;
-    if (tpsPitch > tpsMaxPitch) tpsPitch = tpsMaxPitch;
-}
-
-void lookDown(float deltaTime) {
-    tpsPitch -= baseTurnSpeed * deltaTime;
-    if (tpsPitch < tpsMinPitch) tpsPitch = tpsMinPitch;
-}
-
-void zoomIn(float deltaTime) {
-    tpsDist -= baseZoomSpeed * deltaTime;
-    if (tpsDist < tpsMinDist) tpsDist = tpsMinDist;
-}
-
-void zoomOut(float deltaTime) {
-    tpsDist += baseZoomSpeed * deltaTime;
-    if (tpsDist > tpsMaxDist) tpsDist = tpsMaxDist;
 }

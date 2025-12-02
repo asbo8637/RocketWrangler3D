@@ -19,12 +19,12 @@ void robot_randompose(Robot *robot, float crunchFactor, float rollAngle)
                     randomFloat(-20, 20) - crunchFactor, randomFloat(-20, 20), randomFloat(-15, 15) - rollAngle * 0.6f,        // upper torso 
                     randomFloat(-60, 60) + crunchFactor * 0.5f, randomFloat(-80, 80), randomFloat(-40, 40) + rollAngle * 0.3f, // head
                     randomFloat(-90, 180) - crunchFactor * 0.4f, randomFloat(-60, 60) + crunchFactor, randomFloat(20, 180),       // right upper arm (Y forward)
-                    randomFloat(0, 150), randomFloat(-40, 40), randomFloat(-60, 60),                        // right forearm 
+                    randomFloat(30, 90) , randomFloat(-20, 20), randomFloat(-20, 20),                        // right forearm 
                     randomFloat(-90, 180) - crunchFactor * 0.4f, randomFloat(-60, 60) - crunchFactor, randomFloat(-180, -20),     // left upper arm (Y forward)
-                    randomFloat(0, 150), randomFloat(-40, 40), randomFloat(-60, 60),                        // left forearm 
-                    randomFloat(-60, 90) + crunchFactor * 0.7f, randomFloat(-40, 40), randomFloat(-30, 30), // right thigh 
+                    randomFloat(30, 90) , randomFloat(-20, 20), randomFloat(-20, 20),                        // left forearm 
+                    randomFloat(-60, 90) + crunchFactor * 0.7f, randomFloat(-10, 10), randomFloat(35, 20)-crunchFactor*0.5f, // right thigh 
                     randomFloat(-110, -20) - crunchFactor * 0.5f, randomFloat(-20, 20), randomFloat(-20, 20), // right calf 
-                    randomFloat(-60, 90) + crunchFactor * 0.7f, randomFloat(-40, 40), randomFloat(-30, 30), // left thigh 
+                    randomFloat(-60, 90) + crunchFactor * 0.7f, randomFloat(-10, 10), randomFloat(-35, -20)+crunchFactor*0.5f, // left thigh 
                     randomFloat(-110, -20) - crunchFactor * 0.5f, randomFloat(-20, 20), randomFloat(-20, 20), // left calf
                     280.0f);                                                                                // speed
 }

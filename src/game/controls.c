@@ -65,9 +65,6 @@ void processInputs(double deltaTime)
     controlState.moveX = 0.0f;
     controlState.moveY = 0.0f;
     controlState.moveZ = 0.0f;
-    controlState.cameraYaw = 0.0f;
-    controlState.cameraPitch = 0.0f;
-    controlState.cameraZoom = 0.0f;
     controlState.jump = 0.0f;
     controlState.restart = 0.0f;
 
@@ -112,18 +109,6 @@ void processInputs(double deltaTime)
         normalKeys['f'] = normalKeys['F'] = 0; // consume key
     }
 
-    /* Zoom */
-    if (normalKeys['+'] || normalKeys['='])
-    {
-        zoomIn(deltaTime);
-        controlState.cameraZoom = 1.0f;
-    }
-    else if (normalKeys['-'] || normalKeys['_'])
-    {
-        zoomOut(deltaTime);
-        controlState.cameraZoom = -1.0f;
-    }
-
     if (normalKeys[' '])
     {
         controlState.jump = 1.0f;
@@ -131,28 +116,6 @@ void processInputs(double deltaTime)
 
     if( normalKeys['r'] || normalKeys['R']){
         controlState.restart = 1.0f;
-    }
-
-    /* Camera rotation */
-    if (specialKeys[GLUT_KEY_LEFT])
-    {
-        turnLeft(deltaTime);
-        controlState.cameraYaw = -1.0f;
-    }
-    if (specialKeys[GLUT_KEY_RIGHT])
-    {
-        turnRight(deltaTime);
-        controlState.cameraYaw = 1.0f;
-    }
-    if (specialKeys[GLUT_KEY_UP])
-    {
-        lookUp(deltaTime);
-        controlState.cameraPitch = 1.0f;
-    }
-    if (specialKeys[GLUT_KEY_DOWN])
-    {
-        lookDown(deltaTime);
-        controlState.cameraPitch = -1.0f;
     }
 
     /* Handle ESC key to exit */
