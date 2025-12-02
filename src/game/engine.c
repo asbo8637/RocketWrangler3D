@@ -19,7 +19,7 @@ float robo_velocityX = 0.0f;
 float robo_velocityY = 0.0f;
 float robo_velocityZ = -30.0f;
 
-const float gravity = 67.0f; // units per second squared
+const float gravity = 75.0f; // units per second squared
 const float gravityControlMult = 1.6f;
 const float startHeight = 50.0f;
 const float airSpeedCof = 55.0f;
@@ -27,9 +27,10 @@ const float baseRocketSpeedCof = 130.0f;
 float rocketSpeedCof = 130.0f;
 const float rocketAngleCof = 30.0f;
 const float rocketJumpCof = 1.5f;
-const float rocketSpawnDistance = 500.0f;
+const float rocketSpawnDistance = 700.0f;
 const float deg2rad = 3.14159f / 180.0f;
 int bounces = 0;
+float rocketRideTimer = 0.0f;
 static int score = -1;
 
 float accumulatedTime = 0.0f;
@@ -87,8 +88,8 @@ static void restart(){
     // Spawn initial rocket
     rockets_spawn(0.0f, startHeight, 0.0f, 0.0f, 0.0f, 0.0f);
 
-    for(int i=0; i<15; i++)
-        rockets_spawn(randomFloat(-90, 90), randomFloat(10, 150), robot->core->z-randomFloat(60, rocketSpawnDistance), 0.0f, 0.0f, -rocketSpeedCof);
+    for(int i=0; i<20; i++)
+        rockets_spawn(randomFloat(-90, 90), randomFloat(10, 150), robot->core->z-randomFloat(0, rocketSpawnDistance), 0.0f, 0.0f, -rocketSpeedCof);
     
 }
 
@@ -155,6 +156,9 @@ static void move_robot_riding(double deltaTime)
     robot->core->rotY -= controlState.moveX * (float)deltaTime * rocketAngleCof;
     robot->core->rotX -= controlState.moveZ * (float)deltaTime * rocketAngleCof;
 
+    robot->core->rotY = fminf(fmaxf(robot->core->rotY, -20.0f), 20.0f); // Clamp yaw to avoid extreme angles
+    robot->core->rotX = fminf(fmaxf(robot->core->rotX, -20.0f), 20.0f); // Clamp pitch to avoid extreme angles
+
     float pitch = robot->core->rotX * deg2rad;   // rotX
     float yaw   = robot->core->rotY * deg2rad;   // rotY
 
@@ -170,12 +174,15 @@ static void move_robot_riding(double deltaTime)
     robot->core->y += robo_velocityY * (float)deltaTime;
     robot->core->z += robo_velocityZ * (float)deltaTime;
 
-    if (controlState.jump || bounce())
+    rocketRideTimer += (float)deltaTime;
+
+    if (controlState.jump || bounce() || rocketRideTimer > 3.0f)
     {
         isInAir = 1;
         let_go_rocket(robot);
         rockets_remove(ride_rocket);
         bounces=0;
+        rocketRideTimer = 0.0f;
         robo_velocityX *= rocketJumpCof;
         robo_velocityY *= rocketJumpCof;
         robo_velocityZ *= rocketJumpCof;
@@ -190,7 +197,7 @@ static void update_all_rockets(double deltaTime)
     if((int)round(accumulatedTime) % 2 == 0)
     {
         accumulatedTime = 1.6f;
-        rockets_spawn(randomFloat(-90, 90), randomFloat(10, 150), robot->core->z-randomFloat(rocketSpawnDistance, rocketSpawnDistance+280), 0.0f, 0.0f, -rocketSpeedCof);
+        rockets_spawn(randomFloat(-90, 90), randomFloat(10, 250), robot->core->z-randomFloat(rocketSpawnDistance, 990), 0.0f, 0.0f, -rocketSpeedCof);
     }
     rockets_update(deltaTime, robot->core->z + 30.0f);
 }

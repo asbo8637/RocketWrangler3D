@@ -16,7 +16,7 @@ void robot_randompose(Robot *robot, float crunchFactor, float rollAngle)
 
     robot_setStance(robot,
                     0.0f,  0.0f, 0.0f,        // lower torso (rotZ controlled by continuous spin)
-                    randomFloat(-20, 20) - crunchFactor, randomFloat(-20, 20), randomFloat(-15, 15) - rollAngle * 0.6f,        // upper torso 
+                    randomFloat(-10, 0) - crunchFactor, randomFloat(-5, 5), randomFloat(-5, 5) - rollAngle * 0.6f,        // upper torso 
                     randomFloat(-60, 60) + crunchFactor * 0.5f, randomFloat(-80, 80), randomFloat(-40, 40) + rollAngle * 0.3f, // head
                     randomFloat(-90, 180) - crunchFactor * 0.4f, randomFloat(-60, 60) + crunchFactor, randomFloat(20, 180),       // right upper arm (Y forward)
                     randomFloat(30, 90) , randomFloat(-20, 20), randomFloat(-20, 20),                        // right forearm 

@@ -52,7 +52,7 @@ void initRenderer(void)
 {
     glEnable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(0.22f, 0.12f, 0.10f, 1.0f);
 
 #ifdef USEGLEW
     if (glewInit() != GLEW_OK) { fprintf(stderr, "Error initializing GLEW\n"); exit(1); }

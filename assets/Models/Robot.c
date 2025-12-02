@@ -106,7 +106,7 @@ void robot_init(Robot *robot, float x, float y, float z)
 
     // Head on top of upper torso
     robot->head->x = 0.0f;
-    robot->head->y = 0.65f;
+    robot->head->y = 0.7f;
     robot->head->z = 0.0f;
 
     // Right upper arm
@@ -254,7 +254,7 @@ static void robot_inAirAnimation(Robot *robot, float deltaTime)
 
     // Smoothly interpolate core's Y rotation toward target roll angle
     robot->lowerTorso->rotY += -rollAngle * 1.6f * deltaTime;
-    robot->lowerTorso->rotY = fminf(fmaxf(robot->lowerTorso->rotY, -70.0f), 70.0f);
+    robot->lowerTorso->rotY = fminf(fmaxf(robot->lowerTorso->rotY, -45.0f), 45.0f);
 
     // Keep rotation in 0-360 range for cleaner values
     if (robot->lowerTorso->rotX < 0.0f)

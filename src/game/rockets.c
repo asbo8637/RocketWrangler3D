@@ -7,7 +7,7 @@
 static Rocket **sRockets = NULL;
 static size_t sCount = 0u;
 static size_t sCapacity = 0u;
-static int maxRockets = 23;
+static int maxRockets = 35;
 
 // Capsule approximation of rocket body (matches drawCylinder radius 1.2, height 9)
 static const float ROCKET_RADIUS = 1.0f;
@@ -139,7 +139,7 @@ void rockets_update(double deltaTime, float death_Z_zone)
         if(sRockets[i]->shell->parent)
             continue;
         rocket_update(sRockets[i], dt);
-        if(sRockets[i]->shell->z > death_Z_zone || sRockets[i]->shell->z < death_Z_zone - 800.0f)
+        if(sRockets[i]->shell->z > death_Z_zone)
         {
             rockets_remove(sRockets[i]);
             --i;

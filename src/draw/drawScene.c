@@ -23,7 +23,8 @@ static float lightDif[4] = {1.0f, 1.0f, 1.0f, 1.f};
 static float lightSpe[4] = {1.00f, 1.00f, 1.00f, 1.f};
 static float groundSeed = -1.0f;
 static unsigned int seedBump = 0u;
-static const float fogColor[4] = {0.55f, 0.22f, 0.17f, 1.0f};
+// Brighter, warmer fog to lift the background
+static const float fogColor[4] = {0.70f, 0.36f, 0.30f, 1.0f};
 
 // Function to set up basic lighting
 void setupLighting(void)
@@ -44,8 +45,8 @@ static void setupFog(void)
     glEnable(GL_FOG);
     glFogfv(GL_FOG_COLOR, fogColor);
     glFogi(GL_FOG_MODE, GL_LINEAR);
-    glFogf(GL_FOG_START, 220.0f);
-    glFogf(GL_FOG_END, 1100.0f);
+    glFogf(GL_FOG_START, 250.0f);
+    glFogf(GL_FOG_END, 1010.0f);
     glHint(GL_FOG_HINT, GL_NICEST);
 }
 
@@ -79,7 +80,7 @@ static void drawBackground(float camZ)
     glDisable(GL_LIGHTING);
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, backgroundTexture);
-    glColor3f(1.2f, 1.2f, 1.2f);
+    glColor3f(1.f, 1.f, 1.f);
 
     glDepthMask(GL_FALSE);
     glDisable(GL_DEPTH_TEST);
