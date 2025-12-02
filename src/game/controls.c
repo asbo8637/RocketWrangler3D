@@ -25,6 +25,7 @@ static int initWindowX = 50;
 static int initWindowY = 50;
 static int initWindowW = 800;
 static int initWindowH = 600;
+static int restartHeld = 0; // latch so restart only triggers on key press edge
 
 /* Global control state accessible to engine */
 ControlState controlState = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
@@ -66,7 +67,6 @@ void processInputs(double deltaTime)
     controlState.moveY = 0.0f;
     controlState.moveZ = 0.0f;
     controlState.jump = 0.0f;
-    controlState.restart = 0.0f;
 
     // Process movement keys
     if ((normalKeys['w'] || normalKeys['W']) && !(normalKeys['s'] || normalKeys['S']))
@@ -114,8 +114,15 @@ void processInputs(double deltaTime)
         controlState.jump = 1.0f;
     }
 
-    if( normalKeys['r'] || normalKeys['R']){
-        controlState.restart = 1.0f;
+    int restartKeyDown = (normalKeys['r'] || normalKeys['R']);
+    if (!restartHeld && restartKeyDown && controlState.restart != 0.5f)
+    {
+        controlState.restart = 1.0f; // fire on key-down edge only
+        restartHeld = 1;
+    }
+    else if (!restartKeyDown)
+    {
+        restartHeld = 0; // key released, allow next press to trigger
     }
 
     /* Handle ESC key to exit */

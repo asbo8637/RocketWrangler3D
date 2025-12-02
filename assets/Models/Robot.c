@@ -110,7 +110,7 @@ void robot_init(Robot *robot, float x, float y, float z)
     robot->head->z = 0.0f;
 
     // Right upper arm
-    robot->RUpperArm->x = 0.37f;
+    robot->RUpperArm->x = 0.35f;
     robot->RUpperArm->y = 0.4f; // Near top of upper torso
     robot->RUpperArm->z = 0.0f;
 
@@ -118,7 +118,7 @@ void robot_init(Robot *robot, float x, float y, float z)
     robot->RForearm->y = -0.4f;
 
     // Left upper arm
-    robot->LUpperArm->x = -0.37f;
+    robot->LUpperArm->x = -0.35f;
     robot->LUpperArm->y = 0.4f; // Near top of upper torso
     robot->LUpperArm->z = 0.0f;
 
@@ -323,11 +323,14 @@ void robot_draw(const Robot *robot)
     const float armRadius = 0.12f;
     const float legRadius = 0.15f;
 
-    float generalColor[4] = {0.67f, 0.61f, 0.53f, 1.0f};
-    float skinColor[4]  = {0.88f, 0.64f, 0.32f, 1.0f};
-    float shoeColor[4]  = {0.05f, 0.05f, 0.05f, 1.0f};
-    float brightWhite[4] = {1.0f, 1.0f, 1.0f, 1.0f};
-    float brightDenimMod[4] = {1.4f, 1.4f, 1.4f, 1.0f};
+    float generalColor[4] = {0.55f, 0.45f, 0.45f, 1.0f};
+    float skinColor[4]  = {0.76f, 0.59f, 0.47f, 1.0f};
+    float shoeColor[4]  = {0.08f, 0.08f, 0.08f, 1.0f};
+    float brightWhite[4] = {0.9f, 0.9f, 0.9f, 1.0f};
+    float brightDenimMod[4] = {1.05f, 1.05f, 1.05f, 1.0f};
+    float matteSpec[4]   = {0.04f, 0.04f, 0.04f, 1.0f};
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, matteSpec);
+    glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 12.0f);
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, generalColor);
 
     // Draw lower torso
@@ -336,7 +339,7 @@ void robot_draw(const Robot *robot)
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, flannelTex);
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, brightWhite);
-    glColor3f(0.8f, 0.8f, 0.8f);
+    glColor3f(0.85f, 0.85f, 0.85f);
     drawBox(0.6f, 0.45f, 0.3f);
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_TEXTURE_2D);
@@ -353,7 +356,7 @@ void robot_draw(const Robot *robot)
         glEnable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, flannelTex);
         glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, brightWhite);
-        glColor3f(1.0f, 1.0f, 1.0f);
+        glColor3f(0.9f, 0.9f, 0.9f);
         drawCylinder(0.15f, 0.45f, 18);
         glBindTexture(GL_TEXTURE_2D, 0);
         glDisable(GL_TEXTURE_2D);
@@ -365,7 +368,7 @@ void robot_draw(const Robot *robot)
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, flannelTex);
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, brightWhite);
-    glColor3f(1.0f, 1.0f, 1.0f);
+    glColor3f(0.9f, 0.9f, 0.9f);
     drawBox(0.6f, 0.45f, 0.3f);
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_TEXTURE_2D);
@@ -443,7 +446,7 @@ void robot_draw(const Robot *robot)
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, denimTex);
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, brightDenimMod);
-    glColor3f(1.4f, 1.4f, 1.4f);
+    glColor3f(1.0f, 1.0f, 1.0f);
     drawSphere(legRadius, 16, 16);
     glTranslatef(0.0f, -0.5f, 0.0f);
     drawCylinder(legRadius, 0.5f, 18);
@@ -458,7 +461,7 @@ void robot_draw(const Robot *robot)
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, denimTex);
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, brightDenimMod);
-    glColor3f(1.4f, 1.4f, 1.4f);
+    glColor3f(1.0f, 1.0f, 1.0f);
     drawSphere(legRadius, 16, 16);
     glTranslatef(0.0f, -0.5f, 0.0f);
     drawCylinder(legRadius, 0.5f, 18);
@@ -478,7 +481,7 @@ void robot_draw(const Robot *robot)
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, denimTex);
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, brightDenimMod);
-    glColor3f(1.4f, 1.4f, 1.4f);
+    glColor3f(1.0f, 1.0f, 1.0f);
     drawSphere(legRadius, 16, 16);
     glTranslatef(0.0f, -0.5f, 0.0f);
     drawCylinder(legRadius, 0.5f, 18);
@@ -493,7 +496,7 @@ void robot_draw(const Robot *robot)
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, denimTex);
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, brightDenimMod);
-    glColor3f(1.4f, 1.4f, 1.4f);
+    glColor3f(1.0f, 1.0f, 1.0f);
     drawSphere(legRadius, 16, 16);
     glTranslatef(0.0f, -0.5f, 0.0f);
     drawCylinder(legRadius, 0.5f, 18);

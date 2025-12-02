@@ -59,6 +59,7 @@ static void shortPause(void)
 }
 
 static void restart(){
+    controlState.restart = 0.5f;
     shortPause();
     setSeed(); //From drawScene.c to reset ground seed
     if(robot)
@@ -69,6 +70,7 @@ static void restart(){
     robo_velocityY = 0.0f;
     robo_velocityZ = 0.0f;
     score = -1;
+    rocketRideTimer = 0.0f;
 
     rocketSpeedCof = baseRocketSpeedCof;
 
@@ -90,7 +92,7 @@ static void restart(){
 
     for(int i=0; i<20; i++)
         rockets_spawn(randomFloat(-90, 90), randomFloat(10, 150), robot->core->z-randomFloat(0, rocketSpawnDistance), 0.0f, 0.0f, -rocketSpeedCof);
-    
+    controlState.restart = 0.0f;
 }
 
 void initEngine(void)
@@ -236,7 +238,7 @@ void updateEngine(double deltaTime)
         move_robot_riding(deltaTime);
     }
 
-    if (controlState.restart || bounces == 2){
+    if (controlState.restart == 1.0f || bounces == 2){
         restart();
     }
     animate_robot(robot, (float)deltaTime);

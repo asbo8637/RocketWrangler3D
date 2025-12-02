@@ -30,26 +30,26 @@ void drawPrism(float width, float height, float depth)
     // Draw front triangle
     glBegin(GL_TRIANGLES);
     glNormal3f(0.0f, 0.0f, 1.0f);
-    glVertex3fv(vertices[0]);
-    glVertex3fv(vertices[1]);
-    glVertex3fv(vertices[2]);
+    glTexCoord2f(0.0f, 0.0f); glVertex3fv(vertices[0]);
+    glTexCoord2f(1.0f, 0.0f); glVertex3fv(vertices[1]);
+    glTexCoord2f(0.5f, 1.0f); glVertex3fv(vertices[2]);
     glEnd();
 
    // Draw back triangle
     glBegin(GL_TRIANGLES);
     glNormal3f(0.0f, 0.0f, -1.0f);
-    glVertex3fv(vertices[5]);
-    glVertex3fv(vertices[4]);
-    glVertex3fv(vertices[3]);
+    glTexCoord2f(0.0f, 0.0f); glVertex3fv(vertices[5]);
+    glTexCoord2f(1.0f, 0.0f); glVertex3fv(vertices[4]);
+    glTexCoord2f(0.5f, 1.0f); glVertex3fv(vertices[3]);
     glEnd();
 
     // Draw bottom face
     glBegin(GL_QUADS);
     glNormal3f(0.0f, -1.0f, 0.0f);
-    glVertex3fv(vertices[3]);
-    glVertex3fv(vertices[4]);
-    glVertex3fv(vertices[1]);
-    glVertex3fv(vertices[0]);
+    glTexCoord2f(0.0f, 0.0f); glVertex3fv(vertices[3]);
+    glTexCoord2f(1.0f, 0.0f); glVertex3fv(vertices[4]);
+    glTexCoord2f(1.0f, 1.0f); glVertex3fv(vertices[1]);
+    glTexCoord2f(0.0f, 1.0f); glVertex3fv(vertices[0]);
     glEnd();
 
     // Draw right face
@@ -64,10 +64,10 @@ void drawPrism(float width, float height, float depth)
         float nz = 0.0f;
         glNormal3f(nx, ny, nz);
     }
-    glVertex3fv(vertices[1]);
-    glVertex3fv(vertices[4]);
-    glVertex3fv(vertices[5]);
-    glVertex3fv(vertices[2]);
+    glTexCoord2f(0.0f, 0.0f); glVertex3fv(vertices[1]);
+    glTexCoord2f(1.0f, 0.0f); glVertex3fv(vertices[4]);
+    glTexCoord2f(1.0f, 1.0f); glVertex3fv(vertices[5]);
+    glTexCoord2f(0.0f, 1.0f); glVertex3fv(vertices[2]);
     glEnd();
 
     // Draw left face
@@ -82,9 +82,9 @@ void drawPrism(float width, float height, float depth)
         float nz = 0.0f;
         glNormal3f(nx, ny, nz);
     }
-    glVertex3fv(vertices[3]);
-    glVertex3fv(vertices[0]);
-    glVertex3fv(vertices[2]);
-    glVertex3fv(vertices[5]);
+    glTexCoord2f(0.0f, 0.0f); glVertex3fv(vertices[3]);
+    glTexCoord2f(1.0f, 0.0f); glVertex3fv(vertices[0]);
+    glTexCoord2f(1.0f, 1.0f); glVertex3fv(vertices[2]);
+    glTexCoord2f(0.0f, 1.0f); glVertex3fv(vertices[5]);
     glEnd();
 }
