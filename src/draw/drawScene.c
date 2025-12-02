@@ -17,12 +17,13 @@
 #include "../game/rockets.h"
 
 // Lighting 
-static float lightPos[4] = {0.f, 1600.f, 0.f, 0.f}; // Just like way up there lol
-static float lightAmb[4] = {0.2f, 0.2f, 0.2f, 1.f};
+static float lightPos[4] = {0.f, 2000.f, 0.f, 0.f}; // Just like way up there lol
+static float lightAmb[4] = {0.15f, 0.15f, 0.15f, 1.f};
 static float lightDif[4] = {1.0f, 1.0f, 1.0f, 1.f};
 static float lightSpe[4] = {1.00f, 1.00f, 1.00f, 1.f};
 static float groundSeed = -1.0f;
 static unsigned int seedBump = 0u;
+static const float fogColor[4] = {0.55f, 0.22f, 0.17f, 1.0f};
 
 // Function to set up basic lighting
 void setupLighting(void)
@@ -36,6 +37,16 @@ void setupLighting(void)
     glLightfv(GL_LIGHT0, GL_DIFFUSE, lightDif);
     glLightfv(GL_LIGHT0, GL_SPECULAR, lightSpe);
     glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
+}
+
+static void setupFog(void)
+{
+    glEnable(GL_FOG);
+    glFogfv(GL_FOG_COLOR, fogColor);
+    glFogi(GL_FOG_MODE, GL_EXP);
+    glFogf(GL_FOG_START, 500.0f);
+    glFogf(GL_FOG_END, 2000.0f);
+    glHint(GL_FOG_HINT, GL_NICEST);
 }
 
 #include "camera.h"
@@ -119,8 +130,8 @@ static void groundColor(float h, float x, float z, float seed)
     }
     // world-anchored jitter so colors slide consistently as you move
     float lerp = fmaxf(0.2f + sinf(h*seed*0.2f), wallFactor);
-    float Sand[3] = {0.9f, 0.70f, 0.48f};
-    float DarkRed[3] = {0.73f, 0.19f, 0.05f};
+    float Sand[3] = {0.8f, 0.60f, 0.40f};
+    float DarkRed[3] = {0.63f, 0.15f, 0.03f};
     float r = Sand[0] * (1 - lerp) + DarkRed[0] * lerp;
     float g = Sand[1] * (1 - lerp) + DarkRed[1] * lerp;
     float b = Sand[2] * (1 - lerp) + DarkRed[2] * lerp;
@@ -141,13 +152,14 @@ static void groundColor(float h, float x, float z, float seed)
 // Main scene drawing function
 void drawScene(float camZ)
 {
+    setupFog();
     drawBackground(camZ);
 
     glEnable(GL_DEPTH_TEST);
     glDisable(GL_TEXTURE_2D);
 
     // Set up lighting
-    lightPos[2] = camZ-600.0f;
+    lightPos[2] = camZ-400.0f;
     setupLighting();
 
     // Bumpy ground plane
@@ -166,8 +178,6 @@ void drawScene(float camZ)
 
     glNormal3f(0.0f, 1.0f, 0.0f);
     glDisable(GL_LIGHTING); // use vertex colors directly
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, sandTexture);
 
     int countX = (int)((endX - startX) / cellSize) + 2;
     int countZ = (int)((endZ - startZ) / cellSize) + 2;
