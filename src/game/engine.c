@@ -21,7 +21,7 @@ float robo_velocityZ = -30.0f;
 
 const float gravity = 75.0f; // units per second squared
 const float gravityControlMult = 1.6f;
-const float startHeight = 50.0f;
+const float startHeight = 100.0f;
 const float airSpeedCof = 55.0f;
 const float baseRocketSpeedCof = 140.0f;
 float rocketSpeedCof = 140.0f;
@@ -77,7 +77,7 @@ static void restart(){
     robot->core->rotX = 0.0f;
     robot->core->rotY = 0.0f;
     robot->core->rotZ = 0.0f;
-    robot->core->z= 4.5f;
+    robot->core->z= 5.0f;
 
     isInAir = 1;
     bounces = 0;
@@ -91,7 +91,7 @@ static void restart(){
     rockets_spawn(0.0f, startHeight, 0.0f, 0.0f, 0.0f, 0.0f);
 
     for(int i=0; i<20; i++)
-        rockets_spawn(randomFloat(-90, 90), randomFloat(10, 150), robot->core->z-randomFloat(0, rocketSpawnDistance), 0.0f, 0.0f, -rocketSpeedCof);
+        rockets_spawn(randomFloat(-90, 90), randomFloat(10, 150), robot->core->z-randomFloat(20, rocketSpawnDistance), 0.0f, 0.0f, -rocketSpeedCof);
     controlState.restart = 0.0f;
 }
 

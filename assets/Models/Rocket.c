@@ -55,7 +55,7 @@ void rocket_init(Rocket *rocket, float x, float y, float z, float vx, float vy, 
     rocket->rocket_velocityZ = vz;
 
     rocket->shell->rotX = 90.0f;
-    rocket->shell->rotY = x*y*z;
+    rocket->shell->rotY = x*y*z+90.0f;
 }
 
 // Update rocket animation

@@ -96,7 +96,7 @@ void robot_init(Robot *robot, float x, float y, float z)
     robot->lowerTorso->x = 0.0f;
     robot->lowerTorso->y = 0.0f;
     robot->lowerTorso->z = 0.0f;
-    robot->lowerTorso->angleSpeedCof = 0.3f;
+    robot->lowerTorso->angleSpeedCof = 0.6f;
 
     // Upper torso (chest) - relative to lower torso top, pivot at bottom
     robot->upperTorso->x = 0.0f;
@@ -126,7 +126,7 @@ void robot_init(Robot *robot, float x, float y, float z)
     robot->LForearm->y = -0.4f;
 
     // Right thigh
-    robot->RThigh->x = 0.14f;
+    robot->RThigh->x = 0.135f;
     robot->RThigh->y = -0.25f;
     robot->RThigh->z = 0.0f;
 
@@ -134,7 +134,7 @@ void robot_init(Robot *robot, float x, float y, float z)
     robot->RCalf->y = -0.6f;
 
     // Left thigh
-    robot->LThigh->x = -0.14f;
+    robot->LThigh->x = -0.135f;
     robot->LThigh->y = -0.25f;
     robot->LThigh->z = 0.0f;
 

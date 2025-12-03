@@ -45,8 +45,8 @@ static void setupFog(void)
     glEnable(GL_FOG);
     glFogfv(GL_FOG_COLOR, fogColor);
     glFogi(GL_FOG_MODE, GL_LINEAR);
-    glFogf(GL_FOG_START, 250.0f);
-    glFogf(GL_FOG_END, 1010.0f);
+    glFogf(GL_FOG_START, 50.0f);
+    glFogf(GL_FOG_END, 995.0f);
     glHint(GL_FOG_HINT, GL_NICEST);
 }
 
