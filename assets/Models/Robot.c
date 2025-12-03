@@ -392,6 +392,9 @@ void robot_draw(const Robot *robot)
                   18);
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_TEXTURE_2D);
+
+    glColor3f(0.0f, 0.0f, 0.0f);
+    drawCylinder(0.29f, 0.1f, 16); // Hat Ring
     glEnable(GL_LIGHTING);
     glPopMatrix();
 
