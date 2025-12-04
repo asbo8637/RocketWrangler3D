@@ -26,5 +26,5 @@ void robot_randompose(Robot *robot, float crunchFactor, float rollAngle)
                     randomFloat(-110, -20) - crunchFactor * 0.5f, randomFloat(-20, 20), randomFloat(-20, 20), // right calf 
                     randomFloat(-60, 90) + crunchFactor * 0.4f, randomFloat(-10, 10), randomFloat(-35, -20)+crunchFactor*0.2f, // left thigh 
                     randomFloat(-110, -20) - crunchFactor * 0.5f, randomFloat(-20, 20), randomFloat(-20, 20), // left calf
-                    280.0f);                                                                                // speed
+                    220.0f);                                                                                // speed
 }

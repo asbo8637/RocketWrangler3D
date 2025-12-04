@@ -10,6 +10,7 @@
 #include <math.h>
 #include <time.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "drawScene.h"
 #include "init.h"
 #include "../../assets/Shapes/master.h"
@@ -25,6 +26,7 @@ static float groundSeed = -1.0f;
 static unsigned int seedBump = 0u;
 // Brighter, warmer fog to lift the background
 static const float fogColor[4] = {0.70f, 0.46f, 0.30f, 1.0f};
+static const float groundBaseY = -0.1f;
 
 // Function to set up basic lighting
 void setupLighting(void)
@@ -149,6 +151,80 @@ static void groundColor(float h, float x, float z, float seed)
     glColor3f(r, g, b);
 }
 
+static void drawCacti(float camZ)
+{
+    if (cactusTextureA == 0u && cactusTextureB == 0u)
+        return;
+
+    const float scatterCell = 55.0f;
+    const float rangeX = 280.0f;
+    const float rangeZNeg = 900.0f;
+    const float rangeZPos = 220.0f;
+
+    float startZ = floorf(camZ / scatterCell) * scatterCell - rangeZNeg;
+    float endZ   = startZ + rangeZNeg + rangeZPos;
+
+    glEnable(GL_TEXTURE_2D);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_ALPHA_TEST);
+    glAlphaFunc(GL_GREATER, 0.05f);
+    glDisable(GL_LIGHTING);
+    glColor3f(1.f, 1.f, 1.f);
+
+    for (float z = startZ; z < endZ; z += scatterCell)
+    {
+        for (float x = -rangeX; x < rangeX; x += scatterCell)
+        {
+            float density = hashNoise(x * 0.0247f, z * 0.0317f, groundSeed);
+            if (density < 0.78f)
+                continue;
+
+            float jitterX = (hashNoise(x * 1.7f, z * 2.3f, groundSeed) - 0.5f) * scatterCell * 0.55f;
+            float jitterZ = (hashNoise(x * 2.9f, z * 1.5f, groundSeed) - 0.5f) * scatterCell * 0.55f;
+            float px = x + jitterX;
+            float pz = z + jitterZ;
+            float py = groundBaseY + get_groundHeight(px, pz);
+
+            float chooser = hashNoise(x * 0.12f, z * 0.18f, groundSeed);
+            GLuint tex = cactusTextureA;
+            float aspect = 0.55f;
+            if (cactusTextureB != 0u && chooser > 0.5f)
+            {
+                tex = cactusTextureB;
+                aspect = 0.60f;
+            }
+            else if (tex == 0u)
+            {
+                tex = cactusTextureB;
+                aspect = 0.60f;
+            }
+
+            if (tex == 0u)
+                continue;
+
+            float height = 20.0f + hashNoise(x * 0.5f, z * 0.7f, groundSeed) * 18.0f;
+            float width  = height * aspect;
+
+            glBindTexture(GL_TEXTURE_2D, tex);
+            glBegin(GL_TRIANGLE_STRIP);
+            glNormal3f(0.0f, 0.0f, 1.0f);
+            // Flip V so textures aren't upside-down
+            glTexCoord2f(0.0f, 1.0f); glVertex3f(px - width * 0.5f, py, pz);
+            glTexCoord2f(1.0f, 1.0f); glVertex3f(px + width * 0.5f, py, pz);
+            glTexCoord2f(0.0f, 0.0f); glVertex3f(px - width * 0.5f, py + height, pz);
+            glTexCoord2f(1.0f, 0.0f); glVertex3f(px + width * 0.5f, py + height, pz);
+            glEnd();
+        }
+    }
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glEnable(GL_LIGHTING);
+    glDisable(GL_ALPHA_TEST);
+    glDisable(GL_BLEND);
+    glDisable(GL_TEXTURE_2D);
+}
+
 
 // Main scene drawing function
 void drawScene(float camZ)
@@ -165,7 +241,7 @@ void drawScene(float camZ)
 
     // Bumpy ground plane
     glPushMatrix();
-    const float yGround = -0.1f;
+    const float yGround = groundBaseY;
     const float cellSize = 8.0f;        // Grid cell size
     const float rangeX = 300.0f;        // render span on X around camera
     const float rangeZNeg = 1000.0f;  // how far back (-Z)
@@ -240,6 +316,8 @@ void drawScene(float camZ)
     glDisable(GL_TEXTURE_2D);
     glEnable(GL_LIGHTING);
     glPopMatrix();
+
+    drawCacti(camZ);
 
     // Draw the robot and all live rockets
     robot_draw(robot);

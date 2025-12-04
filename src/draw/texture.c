@@ -13,7 +13,6 @@
 #include <stdlib.h>
 
 // stb_image single-header decoder
-// To keep this repo self-contained, we vendor the header locally.
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
@@ -22,7 +21,7 @@ static int nextPowerOfTwo(int x) {
     int p = 1; while (p < x) p <<= 1; return p;
 }
 
-unsigned int loadTexture2D(const char *filePath)
+static unsigned int loadTexture2DInternal(const char *filePath, int clearWhite)
 {
     int w = 0, h = 0, comp = 0;
     unsigned char *pixels = stbi_load(filePath, &w, &h, &comp, 4); // force RGBA
@@ -60,6 +59,18 @@ unsigned int loadTexture2D(const char *filePath)
         w = tw; h = th;
     }
 
+    // Remove padded white backdrops if requested
+    if (clearWhite)
+    {
+        int count = w * h;
+        for (int i = 0; i < count; ++i)
+        {
+            unsigned char *p = pixels + i * 4;
+            if (p[0] > 245 && p[1] > 245 && p[2] > 245)
+                p[3] = 0;
+        }
+    }
+
     GLuint tex = 0;
     glGenTextures(1, &tex);
     glBindTexture(GL_TEXTURE_2D, tex);
@@ -75,4 +86,14 @@ unsigned int loadTexture2D(const char *filePath)
     glBindTexture(GL_TEXTURE_2D, 0);
     stbi_image_free(pixels);
     return tex;
+}
+
+unsigned int loadTexture2D(const char *filePath)
+{
+    return loadTexture2DInternal(filePath, 0);
+}
+
+unsigned int loadTexture2DWhiteToAlpha(const char *filePath)
+{
+    return loadTexture2DInternal(filePath, 1);
 }

@@ -8,6 +8,8 @@ extern Robot *robot;
 // Background texture handle (0 when not loaded)
 extern unsigned int backgroundTexture;
 extern unsigned int sandTexture;
+extern unsigned int cactusTextureA;
+extern unsigned int cactusTextureB;
 
 // Initialize all scene objects once at startup
 void initScene(void);

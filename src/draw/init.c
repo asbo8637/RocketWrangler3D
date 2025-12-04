@@ -7,12 +7,16 @@
 // Background texture (0 means not available)
 unsigned int backgroundTexture = 0u;
 unsigned int sandTexture = 0u;
+unsigned int cactusTextureA = 0u;
+unsigned int cactusTextureB = 0u;
 Robot *robot = NULL;
 
 // Initialize all scene objects once at startup
 void initScene(void)
 {
     backgroundTexture = loadTexture2D("assets/Textures/istockphoto-510322864-612x612.jpg");
+    cactusTextureA = loadTexture2DWhiteToAlpha("assets/Textures/pngtree-stunning-cactus-plant-in-full-bloom-png-image_13626444.png");
+    cactusTextureB = loadTexture2DWhiteToAlpha("assets/Textures/transparent-cactus-1711102743101.png");
 }
 
 // Cleanup scene objects on shutdown
