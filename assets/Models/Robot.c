@@ -383,9 +383,9 @@ void robot_draw(const Robot *robot)
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, generalColor);
 
     glTranslatef(0.0f, 0.14f, 0.0f);
+    glDisable(GL_LIGHTING);
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, leatherTex);
-    glDisable(GL_LIGHTING);
     glColor3f(0.3f, 0.3f, 0.3f);
     drawCowboyHat(0.6f, 1.0f, 0.3f, 20.0f,
                   0.25f, 0.33f,
@@ -393,8 +393,9 @@ void robot_draw(const Robot *robot)
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_TEXTURE_2D);
 
+
     glColor3f(0.0f, 0.0f, 0.0f);
-    drawCylinder(0.29f, 0.1f, 16); // Hat Ring
+    drawCylinder(0.29f, 0.05f, 16); // Hat Ring
     glEnable(GL_LIGHTING);
     glPopMatrix();
 

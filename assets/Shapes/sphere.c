@@ -25,6 +25,9 @@ void drawSphere(float radius, int segments, int rings)
         glBegin(GL_QUAD_STRIP);
         for(j = 0; j <= segments; j++) {
             theta = 2.0f * M_PI * j / segments;
+            float u = (float)j / (float)segments;
+            float v0 = (float)i / (float)rings;
+            float v1 = (float)(i + 1) / (float)rings;
 
             float x, y, z;
             
@@ -32,6 +35,7 @@ void drawSphere(float radius, int segments, int rings)
             x = radius * sinf(phi) * cosf(theta);
             y = radius * cosf(phi);
             z = radius * sinf(phi) * sinf(theta);
+            glTexCoord2f(u, v0);
             glNormal3f(x/radius, y/radius, z/radius);
             glVertex3f(x, y, z);
             
@@ -39,6 +43,7 @@ void drawSphere(float radius, int segments, int rings)
             x = radius * sinf(phi + M_PI/rings) * cosf(theta);
             y = radius * cosf(phi + M_PI/rings);
             z = radius * sinf(phi + M_PI/rings) * sinf(theta);
+            glTexCoord2f(u, v1);
             glNormal3f(x/radius, y/radius, z/radius);
             glVertex3f(x, y, z);
         }

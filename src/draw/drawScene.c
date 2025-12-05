@@ -15,6 +15,7 @@
 #include "init.h"
 #include "../../assets/Shapes/master.h"
 #include "../../assets/Models/joint_class.h"
+#include "../../assets/Models/Cactus.h"
 #include "../game/rockets.h"
 
 // Lighting 
@@ -153,31 +154,20 @@ static void groundColor(float h, float x, float z, float seed)
 
 static void drawCacti(float camZ)
 {
-    if (cactusTextureA == 0u && cactusTextureB == 0u)
-        return;
-
     const float scatterCell = 55.0f;
-    const float rangeX = 280.0f;
+    const float rangeX = 60.0f;
     const float rangeZNeg = 900.0f;
     const float rangeZPos = 220.0f;
 
     float startZ = floorf(camZ / scatterCell) * scatterCell - rangeZNeg;
     float endZ   = startZ + rangeZNeg + rangeZPos;
 
-    glEnable(GL_TEXTURE_2D);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_ALPHA_TEST);
-    glAlphaFunc(GL_GREATER, 0.05f);
-    glDisable(GL_LIGHTING);
-    glColor3f(1.f, 1.f, 1.f);
-
     for (float z = startZ; z < endZ; z += scatterCell)
     {
         for (float x = -rangeX; x < rangeX; x += scatterCell)
         {
             float density = hashNoise(x * 0.0247f, z * 0.0317f, groundSeed);
-            if (density < 0.78f)
+            if (density < 0.92f)
                 continue;
 
             float jitterX = (hashNoise(x * 1.7f, z * 2.3f, groundSeed) - 0.5f) * scatterCell * 0.55f;
@@ -186,43 +176,24 @@ static void drawCacti(float camZ)
             float pz = z + jitterZ;
             float py = groundBaseY + get_groundHeight(px, pz);
 
-            float chooser = hashNoise(x * 0.12f, z * 0.18f, groundSeed);
-            GLuint tex = cactusTextureA;
-            float aspect = 0.55f;
-            if (cactusTextureB != 0u && chooser > 0.5f)
-            {
-                tex = cactusTextureB;
-                aspect = 0.60f;
-            }
-            else if (tex == 0u)
-            {
-                tex = cactusTextureB;
-                aspect = 0.60f;
-            }
-
-            if (tex == 0u)
-                continue;
-
-            float height = 20.0f + hashNoise(x * 0.5f, z * 0.7f, groundSeed) * 18.0f;
-            float width  = height * aspect;
-
-            glBindTexture(GL_TEXTURE_2D, tex);
-            glBegin(GL_TRIANGLE_STRIP);
-            glNormal3f(0.0f, 0.0f, 1.0f);
-            // Flip V so textures aren't upside-down
-            glTexCoord2f(0.0f, 1.0f); glVertex3f(px - width * 0.5f, py, pz);
-            glTexCoord2f(1.0f, 1.0f); glVertex3f(px + width * 0.5f, py, pz);
-            glTexCoord2f(0.0f, 0.0f); glVertex3f(px - width * 0.5f, py + height, pz);
-            glTexCoord2f(1.0f, 0.0f); glVertex3f(px + width * 0.5f, py + height, pz);
-            glEnd();
+            glPushMatrix();
+            glTranslatef(px, py, pz);
+            glRotatef(hashNoise(x * 3.1f, z * 4.2f, groundSeed) * 360.0f, 0.0f, 1.0f, 0.0f);
+            float scale = 0.6f*(hashNoise(x * 1.3f, z * 1.7f, groundSeed))+0.8f;
+            glScalef(scale, scale, scale);
+            CactusBranchConfig config;
+            config.length = 12.0f + hashNoise(x * 2.1f, z * 3.4f, groundSeed) * 12.0f;
+            config.radiusBase = 1.6f + hashNoise(x * 3.3f, z * 2.2f, groundSeed) * 0.6f;
+            config.radiusTip  = config.radiusBase * (0.2f + hashNoise(x * 4.5f, z * 1.9f, groundSeed) * 0.3f);
+            config.bend = hashNoise(x * 1.9f, z * 4.1f, groundSeed) * 1.2f;
+            config.forkT = 0.6f + hashNoise(x * 3.1f, z * 2.8f, groundSeed) * 0.4f;
+            config.forkAngleDeg = hashNoise(x * 4.2f, z * 1.6f, groundSeed) * -45.0f - 65.0f;
+            config.forkScale = 0.7f + hashNoise(x * 1.8f, z * 4.3f, groundSeed) * 0.6f;
+            config.slices = 5;
+            draw_cactus(&config);
+            glPopMatrix();
         }
     }
-
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glEnable(GL_LIGHTING);
-    glDisable(GL_ALPHA_TEST);
-    glDisable(GL_BLEND);
-    glDisable(GL_TEXTURE_2D);
 }
 
 

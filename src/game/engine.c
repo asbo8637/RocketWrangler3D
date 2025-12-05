@@ -91,7 +91,7 @@ static void restart(){
     rockets_spawn(0.0f, startHeight, 0.0f, 0.0f, 0.0f, 0.0f);
 
     for(int i=0; i<20; i++)
-        rockets_spawn(randomFloat(-90, 90), randomFloat(10, 150), robot->core->z-randomFloat(20, rocketSpawnDistance), 0.0f, 0.0f, -rocketSpeedCof);
+        rockets_spawn(randomFloat(-80, 80), randomFloat(30, 200), robot->core->z-randomFloat(20, rocketSpawnDistance), 0.0f, 0.0f, -rocketSpeedCof);
     controlState.restart = 0.0f;
 }
 
@@ -199,7 +199,7 @@ static void update_all_rockets(double deltaTime)
     if((int)round(accumulatedTime) % 2 == 0)
     {
         accumulatedTime = 1.6f;
-        rockets_spawn(randomFloat(-90, 90), randomFloat(10, 250), robot->core->z-randomFloat(rocketSpawnDistance, 990), 0.0f, 0.0f, -rocketSpeedCof);
+        rockets_spawn(randomFloat(-80, 80), randomFloat(30, 250), robot->core->z-randomFloat(rocketSpawnDistance, 990), 0.0f, 0.0f, -rocketSpeedCof);
     }
     rockets_update(deltaTime, robot->core->z + 30.0f);
 }
