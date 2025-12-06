@@ -131,7 +131,7 @@ void robot_init(Robot *robot, float x, float y, float z)
     robot->RThigh->z = 0.0f;
 
     // Right calf
-    robot->RCalf->y = -0.6f;
+    robot->RCalf->y = -0.55f;
 
     // Left thigh
     robot->LThigh->x = -0.135f;
@@ -139,7 +139,7 @@ void robot_init(Robot *robot, float x, float y, float z)
     robot->LThigh->z = 0.0f;
 
     // Left calf
-    robot->LCalf->y = -0.6f; // calf below knee
+    robot->LCalf->y = -0.55f; // calf below knee
 
     // Build hierarchy: core -> lowerTorso -> upperTorso -> head/arms; lowerTorso -> legs
     joint_addChild(robot->core, robot->lowerTorso);
@@ -479,7 +479,7 @@ void robot_draw(const Robot *robot)
     glColor3f(1.0f, 1.0f, 1.0f);
     drawSphere(legRadius, 16, 16);
     glTranslatef(0.0f, -0.5f, 0.0f);
-    drawCylinder(legRadius, 0.5f, 18);
+    drawCylinder(legRadius, 0.55f, 18);
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_TEXTURE_2D);
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, generalColor);
@@ -514,7 +514,7 @@ void robot_draw(const Robot *robot)
     glColor3f(1.0f, 1.0f, 1.0f);
     drawSphere(legRadius, 16, 16);
     glTranslatef(0.0f, -0.5f, 0.0f);
-    drawCylinder(legRadius, 0.5f, 18);
+    drawCylinder(legRadius, 0.55f, 18);
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_TEXTURE_2D);
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, generalColor);
