@@ -1,3 +1,4 @@
+// Simple circle mesh helper generated with AI and minor cleanup.
 #ifdef _WIN32
 #include <windows.h>
 #include <GL/glut.h>

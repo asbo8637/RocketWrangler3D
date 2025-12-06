@@ -23,5 +23,7 @@ void rocket_update(Rocket *rocket, float deltaTime);
 // Draw the rocket
 void rocket_draw(const Rocket *rocket);
 // Destroy rocket and release memory
-void rocket_destroy(Rocket *rocket);
+void rocket_destroy(Rocket *rocket, int explode);
+// Spawn exhaust particles
+void rocket_thrust(Rocket *rocket);
 #endif // ROCKET_H

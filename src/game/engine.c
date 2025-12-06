@@ -9,6 +9,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "../game/particles.h"
 #include <time.h>
 #ifdef _WIN32
 #include <windows.h>
@@ -32,6 +33,7 @@ const float deg2rad = 3.14159f / 180.0f;
 int bounces = 0;
 float rocketRideTimer = 0.0f;
 static int score = -1;
+static const int MAX_PARTICLES = 800;
 
 float accumulatedTime = 0.0f;
 
@@ -46,6 +48,7 @@ static float randomFloat(float min, float max)
     return min + scale * (max - min);
 }
 
+// Short pause when the game is restarted. This is here to ensure that the restart key press doesn't immediately retrigger a restart.
 static void shortPause(void)
 {
 #ifdef _WIN32
@@ -58,12 +61,15 @@ static void shortPause(void)
 #endif
 }
 
+//Restart the scene to start the game again. 
 static void restart(){
     controlState.restart = 0.5f;
     shortPause();
     setSeed(); //From drawScene.c to reset ground seed
     if(robot)
         robot_destroy(robot);
+    particles_shutdown();
+    particles_init(MAX_PARTICLES);
     robot = robot_create();
     robot_init(robot, 0.0f, startHeight, 2.5f);
     robo_velocityX = 0.0f;
@@ -100,6 +106,7 @@ void initEngine(void)
     restart();
 }
 
+//Some complicated bounce logic to handle ground and wall bounces. Returns 2 for ground bounce, 1 for wall bounce, 0 for no bounce
 static int bounce(){
     if (robot->core->y < 2.0f)
     {
@@ -129,6 +136,7 @@ static int bounce(){
     return 0;
 }
 
+// Movement when in air. Simple physics with gravity and user control
 static void move_robot_air(double deltaTime)
 {
     robo_velocityX += controlState.moveX * (float)deltaTime * airSpeedCof * 0.8f;
@@ -148,7 +156,7 @@ static void move_robot_air(double deltaTime)
 }
 
 
-
+// Movement when riding rocket. Uses angle math to determine momentum based on robot-core orientation
 static void move_robot_riding(double deltaTime)
 {
     robot->core->rotZ -= controlState.moveX * 3.0f * (float)deltaTime * rocketAngleCof;
@@ -178,7 +186,9 @@ static void move_robot_riding(double deltaTime)
 
     rocketRideTimer += (float)deltaTime;
 
-    if (controlState.jump || bounce() || rocketRideTimer > 3.0f)
+    //if (controlState.jump || bounce() || rocketRideTimer > 3.0f)
+    //Disabled timer for example showing
+    if (controlState.jump || bounce())
     {
         isInAir = 1;
         let_go_rocket(robot);
@@ -206,15 +216,18 @@ static void update_all_rockets(double deltaTime)
 
 void updateEngine(double deltaTime)
 {
-    robot_update(robot, deltaTime);
-    update_all_rockets(deltaTime);
+    //Update each of our units to go along with the frame time
+    robot_update(robot, deltaTime); //Function in Robot.c
+    update_all_rockets(deltaTime); //Function in rockets.c
+    particles_update(deltaTime); //Function in particles.c
 
-
+    //If not ride rocket, set robot to in air and try to find rocket to ride
     if (!ride_rocket)
     {
         isInAir = 1;
         ride_rocket = rockets_findCollision(robot->core->x, robot->core->y, robot->core->z, 2.0f);
     }
+    //If ride rocket found, try to grab it. This effectively adds the rocket Shell as a joint child of the robot core
     if(ride_rocket)
     {
         if(!ride_rocket->shell->parent){
@@ -237,7 +250,6 @@ void updateEngine(double deltaTime)
     {
         move_robot_riding(deltaTime);
     }
-
     if (controlState.restart == 1.0f || bounces == 2){
         restart();
     }
@@ -245,6 +257,8 @@ void updateEngine(double deltaTime)
     camera_update(robot->core, robo_velocityX, robo_velocityZ, robo_velocityY, deltaTime);
 }
 
+
+//Simple getters for score and bounce count
 int engine_getBounceCount(void)
 {
     return bounces;

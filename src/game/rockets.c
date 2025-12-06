@@ -44,7 +44,7 @@ void rockets_shutdown(void)
     {
         for (size_t i = 0u; i < sCount; ++i)
         {
-            rocket_destroy(sRockets[i]);
+            rocket_destroy(sRockets[i], 0);
         }
         free(sRockets);
     }
@@ -54,6 +54,7 @@ void rockets_shutdown(void)
     sCapacity = 0u;
 }
 
+//Spawn a rocket at given position and velocity
 Rocket *rockets_spawn(float x, float y, float z, float vx, float vy, float vz)
 {
     if (sCount >= maxRockets)
@@ -70,6 +71,7 @@ Rocket *rockets_spawn(float x, float y, float z, float vx, float vy, float vz)
     return rocket;
 }
 
+//Remove a rocket from the manager and free its resources
 void rockets_remove(Rocket *rocket)
 {
     if (!rocket || sCount == 0u)
@@ -79,7 +81,7 @@ void rockets_remove(Rocket *rocket)
     {
         if (sRockets[i] == rocket)
         {
-            rocket_destroy(sRockets[i]);
+            rocket_destroy(sRockets[i], 1);
             sRockets[i] = sRockets[sCount - 1u];
             sRockets[sCount - 1u] = NULL;
             --sCount;
@@ -126,8 +128,12 @@ Rocket *rockets_findCollision(float px, float py, float pz, float playerRadius)
     }
 
     return NULL;
+
+
 }
 
+//Call the update function on all rockets and remove any that go past death_Z_zone
+//This basically moves forward rockets
 void rockets_update(double deltaTime, float death_Z_zone)
 {
     if (sCount == 0u)
@@ -136,6 +142,8 @@ void rockets_update(double deltaTime, float death_Z_zone)
     float dt = (float)deltaTime;
     for (size_t i = 0u; i < sCount; ++i)
     {
+        if(sRockets[i]->shell->parent)
+            continue;
         rocket_update(sRockets[i], dt);
         if(sRockets[i]->shell->z > death_Z_zone)
         {
@@ -149,6 +157,7 @@ void rockets_draw(void)
 {
     for (size_t i = 0u; i < sCount; ++i)
     {
+        rocket_thrust(sRockets[i]);
         rocket_draw(sRockets[i]);
     }
 }

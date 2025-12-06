@@ -13,13 +13,22 @@
 #include <math.h>
 #include "Rocket.h"
 #include "../../src/draw/texture.h"
+#include "../../src/game/particles.h"
 
 static unsigned int spaceshipTex = 0u;
+static const float DEG2RAD = 0.01745329251994329577f; // pi/180
 
 static void ensureRocketTextureLoaded(void)
 {
     if (spaceshipTex == 0u)
         spaceshipTex = loadTexture2D("assets/Textures/Spaceship_Texture_by_svenniemannie.jpg");
+}
+
+//Helper to make explosions
+static float randomFloat(float min, float max)
+{
+    float scale = rand() / (float)RAND_MAX; // 0.0 to 1.0
+    return min + scale * (max - min);
 }
 
 // Create a new rocket instance
@@ -55,8 +64,81 @@ void rocket_init(Rocket *rocket, float x, float y, float z, float vx, float vy, 
     rocket->rocket_velocityZ = vz;
 
     rocket->shell->rotX = 90.0f;
-    rocket->shell->rotY = x*y*z+90.0f;
+    rocket->shell->rotY = 90.0f;
 }
+
+// Helper math for transforming rocket local offsets/forward; derived with AI to speed up matrix math.
+static void rotate_local_and_forward(const Joint *parent, const float local[3], float outLocal[3], float outForward[3]) {
+    float rx = parent->rotX * DEG2RAD;
+    float ry = parent->rotY * DEG2RAD;
+    float rz = parent->rotZ * DEG2RAD;
+    float cx = cosf(rx), sx = sinf(rx);
+    float cy = cosf(ry), sy = sinf(ry);
+    float cz = cosf(rz), sz = sinf(rz);
+
+    // Rotate Z, then Y, then X (matches joint_applyTransform after translate)
+    float x1 = local[0] * cz - local[1] * sz;
+    float y1 = local[0] * sz + local[1] * cz;
+    float z1 = local[2];
+    float x2 =  x1 * cy + z1 * sy;
+    float z2 = -x1 * sy + z1 * cy;
+    float y2 =  y1;
+    float y3 = y2 * cx - z2 * sx;
+    float z3 = y2 * sx + z2 * cx;
+    float x3 = x2;
+    outLocal[0] = x3; outLocal[1] = y3; outLocal[2] = z3;
+
+    // Rotate base forward (-Z) by same orientation
+    const float baseForward[3] = {0.0f, 0.0f, -1.0f};
+    x1 = baseForward[0] * cz - baseForward[1] * sz;
+    y1 = baseForward[0] * sz + baseForward[1] * cz;
+    z1 = baseForward[2];
+    x2 =  x1 * cy + z1 * sy;
+    z2 = -x1 * sy + z1 * cy;
+    y2 =  y1;
+    y3 = y2 * cx - z2 * sx;
+    z3 = y2 * sx + z2 * cx;
+    x3 = x2;
+    outForward[0] = x3; outForward[1] = y3; outForward[2] = z3;
+}
+
+
+void rocket_thrust(Rocket *rocket)
+{
+    if (!rocket)
+        return;
+
+    float pos[3] = {0.0f, 0.0f, 0.0f};
+    float forward[3] = {0.0f, 0.0f, -1.0f};
+    const float exhaustBack = 11.0f; // emit from behind the rocket
+    float vel[3] = {0.0f, 0.0f, 0.0f};
+
+    if (rocket->shell->parent) { // If rocket is parented to robot, use parent rot + pos
+        const Joint *parent = rocket->shell->parent;
+        float local[3] = { rocket->shell->x, rocket->shell->y, rocket->shell->z };
+        float rotatedLocal[3];
+        float rotatedForward[3];
+        rotate_local_and_forward(parent, local, rotatedLocal, rotatedForward);
+        float l = sqrtf(rotatedForward[0]*rotatedForward[0] + rotatedForward[1]*rotatedForward[1] + rotatedForward[2]*rotatedForward[2]);
+        if (l > 0.0001f) {
+            forward[0] = rotatedForward[0] / l;
+            forward[1] = rotatedForward[1] / l;
+            forward[2] = rotatedForward[2] / l;
+        }
+        pos[0] = parent->x + rotatedLocal[0] - forward[0] * exhaustBack;
+        pos[1] = parent->y + rotatedLocal[1] - forward[1] * exhaustBack;
+        pos[2] = parent->z + rotatedLocal[2] - forward[2] * exhaustBack;
+    } else {
+        pos[0] = rocket->shell->x - forward[0] * exhaustBack;
+        pos[1] = rocket->shell->y - forward[1] * exhaustBack;
+        pos[2] = rocket->shell->z - forward[2] * exhaustBack;
+    }
+    //Start with a bright orange flame that fades to dark blue and shrinks over its lifetime    
+    const float colorStart[4] = {1.0f, 0.5f, 0.2f, 0.8f};
+    const float colorEnd[4] = {0.4f, 0.4f, 0.9f, 0.6f};
+    particles_spawn(pos, vel, 0.05f, 1.0f, colorStart, colorEnd);
+}
+
 
 // Update rocket animation
 void rocket_update(Rocket *rocket, float deltaTime)
@@ -67,7 +149,10 @@ void rocket_update(Rocket *rocket, float deltaTime)
     rocket->shell->x += rocket->rocket_velocityX * deltaTime;
     rocket->shell->y += rocket->rocket_velocityY * deltaTime;
     rocket->shell->z += rocket->rocket_velocityZ * deltaTime;
+
+    rocket_thrust(rocket);
 }
+
 
 // Draw the rocket
 void rocket_draw(const Rocket *rocket)
@@ -127,10 +212,48 @@ void rocket_draw(const Rocket *rocket)
     glPopMatrix();
 }
 
-void rocket_destroy(Rocket *rocket)
+
+void rocket_explode(Rocket *rocket)
 {
     if (!rocket)
         return;
+
+    float pos[3];
+    if(rocket->shell->parent){
+        pos[0] = rocket->shell->parent->x + rocket->shell->x;
+        pos[1] = rocket->shell->parent->y + rocket->shell->y;
+        pos[2] = rocket->shell->parent->z + rocket->shell->z;
+    } 
+    else {
+        pos[0] = rocket->shell->x, pos[1] = rocket->shell->y, pos[2] = rocket->shell->z;
+    }
+    const int numParticles = 50;
+    for (int i = 0; i < numParticles; ++i)
+    {
+        // Random velocity in all directions
+        float speed = randomFloat(40.0f, 80.0f);
+        float theta = randomFloat(0.0f, 2.0f * 3.14159265f);
+        float phi = acosf(randomFloat(-1.0f, 1.0f));
+        float vel[3];
+        vel[0] = speed * sinf(phi) * cosf(theta);
+        vel[1] = speed * sinf(phi) * sinf(theta);
+        vel[2] = speed * cosf(phi) - 100.0f; // add some of rocket's forward velocity
+
+        // Start with an bright orange particle that fades to pink
+        const float colorStart[4] = {1.0f, 0.5f, 0.2f, 1.0f};
+        const float colorEnd[4] = {0.1f, 0.1f, 0.1f, 0.8f};
+        particles_spawn(pos, vel, 0.3f, 2.5f, colorStart, colorEnd);
+    }
+}
+
+//Remove the rocket and trigger an explosion if needed
+void rocket_destroy(Rocket *rocket, int explode)
+{
+    if (!rocket)
+        return;
+    
+    if (explode)
+        rocket_explode(rocket);
 
     if (rocket->shell)
     {

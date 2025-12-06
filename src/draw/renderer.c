@@ -4,9 +4,10 @@
 
 #ifdef USEGLEW
 #include <GL/glew.h>
+#else
+#define GL_GLEXT_PROTOTYPES
 #endif
 
-#define GL_GLEXT_PROTOTYPES
 #ifdef _WIN32
 #include <windows.h>
 #include <GL/glut.h>
@@ -118,6 +119,7 @@ void render()
     
     setProjection();
     applyTPSView();
+    
 
     // Draw world geometry centered near the camera target
     drawScene(tpsTargetZ);

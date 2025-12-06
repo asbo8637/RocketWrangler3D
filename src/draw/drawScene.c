@@ -17,6 +17,7 @@
 #include "../../assets/Models/joint_class.h"
 #include "../../assets/Models/Cactus.h"
 #include "../game/rockets.h"
+#include "../game/particles.h"
 
 // Lighting 
 static float lightPos[4] = {0.f, 600.f, 0.f, 1.f}; // Just like way up there lol
@@ -55,7 +56,7 @@ static void setupFog(void)
 
 #include "camera.h"
 
-// Pseudo-noise based on position and a seed
+// Pseudo-noise based on position and a seed (hash constants suggested by AI)
 static float hashNoise(float x, float z, float seed)
 {
     float v = sinf((x * 12.9898f + z * 78.233f + seed) * 0.0174533f) * 43758.5453f;
@@ -293,4 +294,5 @@ void drawScene(float camZ)
     // Draw the robot and all live rockets
     robot_draw(robot);
     rockets_draw();
+    particles_render();
 }

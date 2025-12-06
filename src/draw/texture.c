@@ -1,5 +1,8 @@
+// Texture loader plumbing (STB + GL upload path) was assembled with AI assistance to save time.
 #ifdef USEGLEW
 #include <GL/glew.h>
+#else
+#define GL_GLEXT_PROTOTYPES
 #endif
 #ifdef _WIN32
 #include <windows.h>

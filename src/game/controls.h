@@ -7,10 +7,15 @@ typedef struct {
     float moveY;        // -1 to 1 (down/up)
     float moveZ;        // -1 to 1 (back/forward)
     float jump;         // 1 if space key is pressed, 0 otherwise
+    float camMoveX;     // -1 to 1 (camera strafe left/right)
+    float camMoveY;     // -1 to 1 (camera down/up)
+    float camMoveZ;     // -1 to 1 (camera back/forward)
     float cameraYaw;    // -1 to 1 (left/right rotation)
     float cameraPitch;  // -1 to 1 (down/up rotation)
     float cameraZoom;   // -1 to 1 (out/in)
-    float restart;      // 1 if restart key is pressed, 0 otherwise
+    float restart;      // 1 if restart key is pressed, 0 otherwise. 0.5 during restart
+    float pause;
+    float perspectiveToggle;
 } ControlState;
 
 // Global control state accessible to engine

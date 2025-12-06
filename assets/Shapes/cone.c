@@ -1,3 +1,4 @@
+// Shape helper originally generated with AI and then tweaked (normals/UVs).
 #ifdef _WIN32
 #include <windows.h>
 #include <GL/glut.h>

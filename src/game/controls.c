@@ -101,7 +101,7 @@ void processInputs(double deltaTime)
     {
         if (!isFullScreen)
         {
-            // Enter fullscreen; remember current size/pos if not already saved
+            // Enter fullscreen; remember current size/pos if not already saved (logic scaffolded with AI help)
             initWindowX = glutGet(GLUT_WINDOW_X);
             initWindowY = glutGet(GLUT_WINDOW_Y);
             initWindowW = glutGet(GLUT_WINDOW_WIDTH);
@@ -139,7 +139,7 @@ void processInputs(double deltaTime)
         normalKeys['p'] = normalKeys['P'] = 0; // consume key
     }
 
-    // Restart on edge of 'r' key
+
     int restartKeyDown = (normalKeys['r'] || normalKeys['R']);
     if (!restartHeld && restartKeyDown && controlState.restart != 0.5f)
     {
@@ -160,9 +160,9 @@ void processInputs(double deltaTime)
 
     
     if (specialKeys[GLUT_KEY_LEFT] && !specialKeys[GLUT_KEY_RIGHT])
-        controlState.cameraYaw = -1.0f;
-    else if (specialKeys[GLUT_KEY_RIGHT] && !specialKeys[GLUT_KEY_LEFT])
         controlState.cameraYaw = 1.0f;
+    else if (specialKeys[GLUT_KEY_RIGHT] && !specialKeys[GLUT_KEY_LEFT])
+        controlState.cameraYaw = -1.0f;
 
     if (specialKeys[GLUT_KEY_UP] && !specialKeys[GLUT_KEY_DOWN])
         controlState.cameraPitch = 1.0f;

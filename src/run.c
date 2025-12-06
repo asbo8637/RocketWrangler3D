@@ -57,7 +57,14 @@ static void idle(void)
 
     // Process inputs and update game state with accumulated time
     processInputs(deltaTime);
-    updateEngine(deltaTime);
+
+    if(controlState.pause == 0.0f){
+        updateEngine(deltaTime);
+    }
+    else{
+        //If paused, update camera with manual controls. 
+        camera_update_manual(deltaTime);
+    }
 
     // Store delta for the renderer
     lastFrameDelta = deltaTime;
@@ -72,7 +79,7 @@ int main(int argc, char **argv)
     glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
     glutInitWindowPosition(50, 50);
     glutInitWindowSize(1800, 1200);
-    win = glutCreateWindow("RocketWrangler - 3D");
+    win = glutCreateWindow("Assaf Boneh - RocketWrangler 3D!");
 
     // Initialize all subsystems
     initRenderer();

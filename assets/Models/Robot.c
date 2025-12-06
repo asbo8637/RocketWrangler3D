@@ -351,18 +351,18 @@ void robot_draw(const Robot *robot)
     joint_applyTransform(robot->upperTorso);
 
         //Draw connecting cylinder
-        glTranslatef(0.225f, 0.0f, 0.0f);
+        glTranslatef(0.275f, 0.0f, 0.0f);
         glRotatef(90.0f, 0.0f, 0.0f, 1.0f);
         glEnable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, flannelTex);
         glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, brightWhite);
         glColor3f(0.9f, 0.9f, 0.9f);
-        drawCylinder(0.15f, 0.45f, 18);
+        drawCylinder(0.15f, 0.55f, 18);
         glBindTexture(GL_TEXTURE_2D, 0);
         glDisable(GL_TEXTURE_2D);
         glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, generalColor);
         glRotatef(-90.0f, 0.0f, 0.0f, 1.0f);
-        glTranslatef(-0.225f, 0.0f, 0.0f);
+        glTranslatef(-0.275f, 0.0f, 0.0f);
 
     glTranslatef(0.0f, 0.225f, 0.0f);
     glEnable(GL_TEXTURE_2D);
@@ -497,11 +497,11 @@ void robot_draw(const Robot *robot)
     drawCylinder(legRadius, 0.5f, 18);
 
     //Foot
-    glTranslatef(0.0f, -0.13f, -0.11f);
+    glTranslatef(0.0f, -0.10f, -0.11f);
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_TEXTURE_2D);
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, shoeColor);
-    drawBox(0.2f, 0.2f, 0.5f);
+    drawBox(0.25f, 0.25f, 0.5f);
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, generalColor);
     glPopMatrix();
 
@@ -532,11 +532,11 @@ void robot_draw(const Robot *robot)
     drawCylinder(legRadius, 0.5f, 18);
 
     //Foot
-    glTranslatef(0.0f, -0.13f, -0.11f);
+    glTranslatef(0.0f, -0.10f, -0.11f);
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_TEXTURE_2D);
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, shoeColor);
-    drawBox(0.2f, 0.2f, 0.5f);
+    drawBox(0.25f, 0.25f, 0.5f);
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, generalColor);
     glPopMatrix();
 }

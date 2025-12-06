@@ -21,4 +21,7 @@ void zoomOut(float deltaTime);
 // Automatic camera update driven by game state
 void camera_update(const struct Joint *robotCore, float velocityX, float velocityZ, float velocityY, double deltaTime);
 
+// Manual camera free-move using ControlState (arrows for yaw/pitch, WASD/Space/Z for position)
+void camera_update_manual(double deltaTime);
+
 #endif /* CAMERA_H */
