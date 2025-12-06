@@ -28,7 +28,7 @@ static int initWindowH = 600;
 static int restartHeld = 0; // latch so restart only triggers on key press edge
 
 /* Global control state accessible to engine */
-ControlState controlState = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+ControlState controlState = {0};
 
 void handleKeyboard(unsigned char key, int x, int y)
 {
@@ -67,24 +67,34 @@ void processInputs(double deltaTime)
     controlState.moveY = 0.0f;
     controlState.moveZ = 0.0f;
     controlState.jump = 0.0f;
+    controlState.camMoveX = 0.0f;
+    controlState.camMoveY = 0.0f;
+    controlState.camMoveZ = 0.0f;
+    controlState.cameraYaw = 0.0f;
+    controlState.cameraPitch = 0.0f;
+    controlState.restart = 0.0f;
 
     // Process movement keys
     if ((normalKeys['w'] || normalKeys['W']) && !(normalKeys['s'] || normalKeys['S']))
     {
         controlState.moveZ = 1.0f;
+        controlState.camMoveZ = 1.0f;
     }
     else if ((normalKeys['s'] || normalKeys['S']) && !(normalKeys['w'] || normalKeys['W']))
     {
         controlState.moveZ = -1.0f;
+        controlState.camMoveZ = -1.0f;
     }
 
     if ((normalKeys['a'] || normalKeys['A']) && !(normalKeys['d'] || normalKeys['D']))
     {
         controlState.moveX = -1.0f;
+        controlState.camMoveX = -1.0f;
     }
     else if ((normalKeys['d'] || normalKeys['D']) && !(normalKeys['a'] || normalKeys['A']))
     {
         controlState.moveX = 1.0f;
+        controlState.camMoveX = 1.0f;
     }
 
     if (normalKeys['f'] || normalKeys['F'])
@@ -112,8 +122,24 @@ void processInputs(double deltaTime)
     if (normalKeys[' '])
     {
         controlState.jump = 1.0f;
+        controlState.camMoveY = 1.0f;
+    }
+    if (normalKeys['c'] || normalKeys['C'])
+        controlState.camMoveY = -1.0f;
+
+    if (normalKeys['o'] || normalKeys['O'])
+    {
+        controlState.perspectiveToggle = controlState.perspectiveToggle == 0.0f ? 1.0f : 0.0f;
+        normalKeys['o'] = normalKeys['O'] = 0; // consume key
+
+    }
+    else if (normalKeys['p'] || normalKeys['P'])
+    {
+        controlState.pause = controlState.pause == 0.0f ? 1.0f : 0.0f;
+        normalKeys['p'] = normalKeys['P'] = 0; // consume key
     }
 
+    // Restart on edge of 'r' key
     int restartKeyDown = (normalKeys['r'] || normalKeys['R']);
     if (!restartHeld && restartKeyDown && controlState.restart != 0.5f)
     {
@@ -131,6 +157,17 @@ void processInputs(double deltaTime)
         glutDestroyWindow(windowId);
         exit(0);
     }
+
+    
+    if (specialKeys[GLUT_KEY_LEFT] && !specialKeys[GLUT_KEY_RIGHT])
+        controlState.cameraYaw = -1.0f;
+    else if (specialKeys[GLUT_KEY_RIGHT] && !specialKeys[GLUT_KEY_LEFT])
+        controlState.cameraYaw = 1.0f;
+
+    if (specialKeys[GLUT_KEY_UP] && !specialKeys[GLUT_KEY_DOWN])
+        controlState.cameraPitch = 1.0f;
+    else if (specialKeys[GLUT_KEY_DOWN] && !specialKeys[GLUT_KEY_UP])
+        controlState.cameraPitch = -1.0f;
 }
 
 int isKeyPressed(unsigned char key)

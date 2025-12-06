@@ -136,8 +136,6 @@ void rockets_update(double deltaTime, float death_Z_zone)
     float dt = (float)deltaTime;
     for (size_t i = 0u; i < sCount; ++i)
     {
-        if(sRockets[i]->shell->parent)
-            continue;
         rocket_update(sRockets[i], dt);
         if(sRockets[i]->shell->z > death_Z_zone)
         {
