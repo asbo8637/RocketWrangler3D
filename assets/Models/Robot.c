@@ -291,10 +291,11 @@ static void robot_surfing_animation(Robot *robot, float deltaTime)
         return;
 
     robot->lowerTorso->x = -0.3f;
-    robot->lowerTorso->y = 2.3f;
+    robot->lowerTorso->y = 2.1f;
     robot->lowerTorso->z = 0.0f;
 
     robot->lowerTorso->rotY = -90.0f;
+    robot->lowerTorso->rotX = -10.0f;
 
     robot_surfpose(robot);
 }
