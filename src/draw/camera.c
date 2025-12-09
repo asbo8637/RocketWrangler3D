@@ -114,11 +114,12 @@ void camera_update(const Joint *robotCore, float velocityX, float velocityZ, flo
     tpsPitch += (desiredPitch - tpsPitch) * yawAlpha;
 
     if(controlState.perspectiveToggle != 0.0f){
-        tpsTargetY  = 1000.0f;
+        tpsTargetY  = 175.0f;
         tpsTargetX = 0.0f;
-        tpsPitch = -0.9f;
+        tpsPitch = -0.7f;
         tpsYaw = 1.57f;
-        tpsTargetZ = robotCore->z+300.0f;
+        tpsTargetZ = robotCore->z+30.0f;
+        tpsDist = 60.0f;
     }
 
 }

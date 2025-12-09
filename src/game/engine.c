@@ -233,7 +233,7 @@ void updateEngine(double deltaTime)
         if(!ride_rocket->shell->parent){
             grab_rocket(robot, ride_rocket);
             score++;
-            rocketSpeedCof = baseRocketSpeedCof + score * 0.6f;
+            rocketSpeedCof = baseRocketSpeedCof + score * 1.1f;
             robo_velocityX *= 0.0f;
             robo_velocityY = 0.0f;
             bounces = 0;

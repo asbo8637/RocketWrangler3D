@@ -145,7 +145,7 @@ void rockets_update(double deltaTime, float death_Z_zone)
         if(sRockets[i]->shell->parent)
             continue;
         rocket_update(sRockets[i], dt);
-        if(sRockets[i]->shell->z > death_Z_zone)
+        if(sRockets[i]->shell->z > death_Z_zone+50.0f)
         {
             rockets_remove(sRockets[i]);
             --i;
