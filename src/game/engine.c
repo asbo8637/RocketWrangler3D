@@ -123,14 +123,14 @@ static int bounce(){
         robo_velocityY = (5.0f*fabs(robo_velocityX) + 5.25f*robo_velocityY)/7.5f;
         robo_velocityY = fmin(robo_velocityY, 60.0f);
         if(robot->core->x > 0.0f){
-            robo_velocityX = (-robo_velocityX*5.25f + old_robo_velocityY*5.0f)/7.25f; 
+            robo_velocityX = (-robo_velocityX*5.25f + old_robo_velocityY*5.0f)/3.25f; 
             robot->core->x -= 2.0f;
         }
         else{
-            robo_velocityX = (-robo_velocityX*5.25f - old_robo_velocityY*5.0f)/7.25f;
+            robo_velocityX = (-robo_velocityX*5.25f - old_robo_velocityY*5.0f)/3.25f;
             robot->core->x += 2.0f;
         }
-        robo_velocityX = fmin(fmax(robo_velocityX, -60.0f), 60.0f);
+        robo_velocityX = fmin(fmax(robo_velocityX, -30.0f), 30.0f);
         return 1;  
     }
     return 0;
@@ -139,9 +139,9 @@ static int bounce(){
 // Movement when in air. Simple physics with gravity and user control
 static void move_robot_air(double deltaTime)
 {
-    robo_velocityX += controlState.moveX * (float)deltaTime * airSpeedCof * 0.8f;
-    robo_velocityX = fmaxf(robo_velocityX, -90.0f);
-    robo_velocityX = fminf(robo_velocityX, 90.0f);
+    robo_velocityX += controlState.moveX * (float)deltaTime * airSpeedCof * 1.1f;
+    robo_velocityX = fmaxf(robo_velocityX, -120.0f);
+    robo_velocityX = fminf(robo_velocityX, 120.0f);
     robo_velocityY -= gravity * (float)deltaTime * powf(gravityControlMult, controlState.moveZ);
     robo_velocityZ += controlState.moveZ * (float)deltaTime * airSpeedCof * 0.1f;
 
@@ -233,7 +233,7 @@ void updateEngine(double deltaTime)
         if(!ride_rocket->shell->parent){
             grab_rocket(robot, ride_rocket);
             score++;
-            rocketSpeedCof = baseRocketSpeedCof + score * 2.0f;
+            rocketSpeedCof = baseRocketSpeedCof + score * 0.6f;
             robo_velocityX *= 0.0f;
             robo_velocityY = 0.0f;
             bounces = 0;
