@@ -17,6 +17,8 @@
 
 static unsigned int spaceshipTex = 0u;
 static const float DEG2RAD = 0.01745329251994329577f; // pi/180
+static const float THRUST_PARTICLE_SIZE = 1.0f;
+static const float EXPLOSION_PARTICLE_SIZE = 3.5f;
 
 static void ensureRocketTextureLoaded(void)
 {
@@ -136,7 +138,7 @@ void rocket_thrust(Rocket *rocket)
     //Start with a bright orange flame that fades to dark blue and shrinks over its lifetime    
     const float colorStart[4] = {1.0f, 0.5f, 0.2f, 0.8f};
     const float colorEnd[4] = {0.4f, 0.4f, 0.9f, 0.6f};
-    particles_spawn(pos, vel, 0.05f, 1.0f, colorStart, colorEnd);
+    particles_spawn(pos, vel, 0.05f, THRUST_PARTICLE_SIZE, colorStart, colorEnd);
 }
 
 
@@ -242,7 +244,7 @@ void rocket_explode(Rocket *rocket)
         // Start with an bright orange particle that fades to pink
         const float colorStart[4] = {1.0f, 0.5f, 0.2f, 1.0f};
         const float colorEnd[4] = {0.1f, 0.1f, 0.1f, 0.8f};
-        particles_spawn(pos, vel, 0.3f, 2.5f, colorStart, colorEnd);
+        particles_spawn(pos, vel, 0.3f, EXPLOSION_PARTICLE_SIZE, colorStart, colorEnd);
     }
 }
 

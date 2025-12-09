@@ -118,7 +118,7 @@ void camera_update(const Joint *robotCore, float velocityX, float velocityZ, flo
         tpsTargetX = 0.0f;
         tpsPitch = -0.7f;
         tpsYaw = 1.57f;
-        tpsTargetZ = robotCore->z+30.0f;
+        tpsTargetZ = robotCore->z+50.0f;
         tpsDist = 60.0f;
     }
 

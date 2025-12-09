@@ -87,7 +87,8 @@ int particles_spawn(const float pos[3], const float vel[3],
     memcpy(p->vel, vel, 3 * sizeof(float));
     p->lifetime = lifetime;
     p->age = 0.0f;
-    p->size = size;
+    // Guard against negative/zero sizes; fall back to a small default
+    p->size = (size > 0.0f) ? size : 0.25f;
 
     if (colorStart)
         memcpy(p->colorStart, colorStart, 4 * sizeof(float));

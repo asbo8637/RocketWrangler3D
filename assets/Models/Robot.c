@@ -14,6 +14,7 @@
 #include "../../src/draw/texture.h"
 #include <stdlib.h>
 #include <math.h>
+#include "../../src/game/particles.h"
 
 static const float poseDuration = 0.2f; // seconds between random in-air poses
 static unsigned int leatherTex = 0u;
@@ -244,12 +245,7 @@ static void robot_inAirAnimation(Robot *robot, float deltaTime)
 
     // Continuous lower torso spinning - add delta rotation each frame
     robot->lowerTorso->rotX -= spinSpeed * deltaTime;
-    if(rollAngle!=0.0f){
-        robot->lowerTorso->animatingRot=0;
-    }
-    else{
-        robot->lowerTorso->animatingRot=1;
-    }
+    robot->lowerTorso->animatingRot=0;
     robot->lowerTorso->rotZ -= rollAngle * deltaTime * 2.0f;
 
     // Smoothly interpolate core's Y rotation toward target roll angle
