@@ -75,23 +75,28 @@ void processInputs(double deltaTime)
     controlState.restart = 0.0f;
 
     // Process movement keys
-    if ((normalKeys['w'] || normalKeys['W']) && !(normalKeys['s'] || normalKeys['S']))
+    const int forward = (normalKeys['w'] || normalKeys['W'] || specialKeys[GLUT_KEY_UP]);
+    const int backward = (normalKeys['s'] || normalKeys['S'] || specialKeys[GLUT_KEY_DOWN]);
+    const int left = (normalKeys['a'] || normalKeys['A'] || specialKeys[GLUT_KEY_LEFT]);
+    const int right = (normalKeys['d'] || normalKeys['D'] || specialKeys[GLUT_KEY_RIGHT]);
+
+    if (forward && !backward)
     {
         controlState.moveZ = 1.0f;
         controlState.camMoveZ = 1.0f;
     }
-    else if ((normalKeys['s'] || normalKeys['S']) && !(normalKeys['w'] || normalKeys['W']))
+    else if (backward && !forward)
     {
         controlState.moveZ = -1.0f;
         controlState.camMoveZ = -1.0f;
     }
 
-    if ((normalKeys['a'] || normalKeys['A']) && !(normalKeys['d'] || normalKeys['D']))
+    if (left && !right)
     {
         controlState.moveX = -1.0f;
         controlState.camMoveX = -1.0f;
     }
-    else if ((normalKeys['d'] || normalKeys['D']) && !(normalKeys['a'] || normalKeys['A']))
+    else if (right && !left)
     {
         controlState.moveX = 1.0f;
         controlState.camMoveX = 1.0f;

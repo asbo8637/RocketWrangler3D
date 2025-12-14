@@ -321,7 +321,7 @@ void robot_draw(const Robot *robot)
     const float legRadius = 0.15f;
 
     float generalColor[4] = {0.75f, 0.55f, 0.25f, 1.0f};
-    float skinColor[4]  = {0.76f, 0.59f, 0.47f, 1.0f};
+    float skinColor[4]  = {0.79f, 0.59f, 0.47f, 1.0f};
     float shoeColor[4]  = {0.08f, 0.08f, 0.08f, 1.0f};
     float brightWhite[4] = {0.9f, 0.9f, 0.9f, 1.0f};
     float brightDenimMod[4] = {1.05f, 1.05f, 1.05f, 1.0f};
@@ -382,6 +382,7 @@ void robot_draw(const Robot *robot)
     glTranslatef(0.0f, 0.14f, 0.0f);
     glDisable(GL_LIGHTING);
     glEnable(GL_TEXTURE_2D);
+    glColor3f(1.0f, 1.0f, 1.0f);
     glBindTexture(GL_TEXTURE_2D, leatherTex);
     glColor3f(0.3f, 0.3f, 0.3f);
     drawCowboyHat(0.6f, 1.0f, 0.3f, 20.0f,
