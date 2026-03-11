@@ -38,21 +38,10 @@ My girlfriend's cousin spent almost an hour playing this game, which I think is 
 
 - Particles: Circular particles that allow for rocket thrusts and explosions. Which is fun (`src/game/particles.c`, spawn in `assets/Models/rocket.c`) 
 
-- Models: Cool models, the character's hat, and cactus (from previous assignment)
+- Models: Cool models, the character's hat, and cactus 
 - The rocket model and character are made of relatively simple shapes, but look good, and have textures applied
 
 -Game engine: `src/game/engine.c` I think the logic here is fun. It was fun to make. 
-
-
-## AI acknowledgments
-- `src/game/particles.c`: Drafted with AI assistance and adapted from learnopengl.com’s “2D Game Particles”. Exhaust colors/logic are my own, and any use of the particles is also my logic. The only other thing I had help with is rotate_local_and_forward(In `assets/Models/rocket.c`). I could not figure out the math of spawning at the base of the rocket. (Would've worked if I flipped the rocket around the Y, as that would've been really easy as the thrust would be right at the base, but I did not want to refactor all my code.)
-- `Makefile`: Made with AI. Based it off previous assignments, but I have no idea how MAKE files really work.
-- `textures.c` : AI helped build that out. I did textures before. I wanted a more generally applicable tool. 
-- `cone and circle` : I have drawn plenty of shapes; I used AI to make these quickly. 
-- `Body Poses` : Some of the poses I had AI initially put together, but required a lot of tweaking. So not really AI
-- `Full Screen feature` : I had AI build that out. I found the GL tool for it though, through google. 
-- `Hash Function` : I used a hash function in draw scene. I used AI to make that. 
-- Everything else is 99% my own work. I might've forgotten to list something here, but most of it is my own logic. 
 
 
 
