@@ -10,6 +10,7 @@
 #include <string.h>
 #include "../draw/camera.h"
 #include "controls.h"
+#include "menu.h"
 
 #define MAX_KEYS 256
 #define MAX_SPECIAL_KEYS 256
